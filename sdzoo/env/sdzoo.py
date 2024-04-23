@@ -791,11 +791,11 @@ class parallel_env(ParallelEnv):
             for agent in self.agents:
                 # Provide an end-of-episode reward.
                 if self.reward_method_terminal == "average":
-                    reward_dict[agent] -= (self.sdg.getTotalPayloads() * self.sdg.getTotalState())
-                    reward_dict[agent] -= self.step_count
-                    reward_dict[agent] *= self.beta
+                    # reward_dict[agent] -= (self.sdg.getTotalPayloads() * self.sdg.getTotalState())
+                    # reward_dict[agent] -= self.step_count
+                    # reward_dict[agent] *= self.beta
                     if self.sdg.getTotalState() == 0:
-                        reward_dict[agent] += 100
+                        reward_dict[agent] += 1000
                 elif self.reward_method_terminal != "none":
                     raise ValueError(f"Invalid terminal reward method {self.reward_method_terminal}")
 
