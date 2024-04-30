@@ -233,8 +233,7 @@ class parallel_env(ParallelEnv):
             # deficit, surplus
             state_space["current_node"] = spaces.Box(
                 low = np.array([-1.0, -1.0], dtype=np.float32),
-                high = np.array([np.inf, np.inf], dtype=np.float32),
-                dtype=np.float32
+                high = np.array([np.inf, np.inf], dtype=np.float32)
             )
 
         if observe_method in ["pyg"]:
