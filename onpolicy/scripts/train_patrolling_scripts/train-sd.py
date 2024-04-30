@@ -1,5 +1,5 @@
 from onpolicy.scripts.train.train_patrolling import get_config, parse_args, main
-
+import numpy as np
 import os
 os.environ["WANDB__SERVICE_WAIT"] = "300"
 
@@ -15,7 +15,7 @@ all_args.agent_speed = 40.0
 all_args.action_method = "neighbors"
 all_args.observe_method = "pyg"
 all_args.observe_method_global = "adjacency"
-all_args.observation_radius = 40.0
+all_args.observation_radius = np.inf
 all_args.observation_bitmap_size = 40
 all_args.communication_model = "bernoulli"
 all_args.communication_probability = 0.1

@@ -52,8 +52,13 @@ class SDGraph():
                     nodeType = NODE_TYPE.OBSERVABLE_NODE,
                     depot = dep,
                     people = peeps, 
-                    payloads = load
+                    payloads = load,
+                    surplus = 0,
+                    deficit = 0
                 )
+
+                self.graph.nodes[i]["deficit"] = self.calcNodeDeficit(i)
+                self.graph.nodes[i]["surplus"] = self.calcNodeSurplus(i)
                 
                 # Add a self-loop to the node.
                 # self.graph.add_edge(i, i)
@@ -126,6 +131,11 @@ class SDGraph():
                 self.graph.nodes[node]["people"] += people
                 people_left -= people
 
+        # calculate deficit and surplus for each node
+        for node in self.graph.nodes:
+            self.graph.nodes[node]["deficit"] = self.calcNodeDeficit(node)
+            self.graph.nodes[node]["surplus"] = self.calcNodeSurplus(node)
+
             
         for edge in self.graph.edges:
             self.graph.edges[edge]["weight"] = self._dist(self.graph.nodes[edge[0]]["pos"], self.graph.nodes[edge[1]]["pos"])
@@ -185,15 +195,20 @@ class SDGraph():
         average_idleness_time = self.getAverageIdlenessTime(currentTime)
         return math.sqrt(sum([math.pow(self.getNodeIdlenessTime(node, currentTime) - average_idleness_time, 2) for node in nodes]) / float(number_of_nodes))
 
+
     def getNodePayloads(self, node):
         ''' Returns the number of payloads delivered to a node'''
 
         return self.graph.nodes[node]["payloads"]
     
+
     def putPayloads(self, node, num):
         ''' Adds `num` payloads to `node`'''
 
         self.graph.nodes[node]["payloads"] += num
+        self.graph.nodes[node]["deficit"] = self.calcNodeDeficit(node)
+        self.graph.nodes[node]["surplus"] = self.calcNodeSurplus(node)
+
 
     def takePayloads(self, node, num):
         ''' Removes `num` payloads from `node`'''
@@ -201,38 +216,79 @@ class SDGraph():
         self.graph.nodes[node]["payloads"] -= num
         if self.graph.nodes[node]["payloads"] < 0:
             raise ValueError("Attempting to take from a node with 0 payloads")
+        
+        self.graph.nodes[node]["deficit"] = self.calcNodeDeficit(node)
+        self.graph.nodes[node]["surplus"] = self.calcNodeSurplus(node)
+
 
     def isDepot(self, node):
         ''' Returns if a given node is the depot node'''
         
         return self.graph.nodes[node]["depot"]
     
+
     def getNodePeople(self, node):
         ''' Returns the number of people at a node'''
 
         return self.graph.nodes[node]["people"]
     
-    def getNodeState(self, node):
-        ''' Returns the state of each node. '''
+
+    def calcNodeDeficit(self, node):
+        ''' Calculates the node's deficit. '''
         
         return max(self.getNodePeople(node) - self.getNodePayloads(node), 0)
     
-    def getTotalState(self):
-        ''' Returns the state of all nodes. '''
+
+    def getNodeDeficit(self, node):
+        ''' Returns the deficit of a node. '''
+
+        return self.graph.nodes[node]["deficit"]
+    
+
+    def getTotalDeficit(self):
+        ''' Returns the deficit of all nodes. '''
 
         nodes = self.graph.nodes
-        return sum([self.getNodeState(node) for node in nodes])
+        return sum([self.getNodeDeficit(node) for node in nodes])
     
-    def getAverageState(self):
-        ''' Returns the average state of all nodes. '''
 
-        return self.getTotalState() / float(self.graph.number_of_nodes())
+    def getAverageDeficit(self):
+        ''' Returns the average deficit of all nodes. '''
+
+        return self.getTotalDeficit() / float(self.graph.number_of_nodes())
     
+
+    def calcNodeSurplus(self, node):
+        ''' Calculates the node's surplus. '''
+        
+        return max(self.getNodePayloads(node) - self.getNodePeople(node), 0)
+    
+
+    def getNodeSurplus(self, node):
+        ''' Returns the surplus of a node. '''
+
+        return self.graph.nodes[node]["surplus"]
+    
+
+    def getTotalSurplus(self):
+        ''' Returns the surplus of all nodes. '''
+
+        nodes = self.graph.nodes
+        return sum([self.getNodeSurplus(node) for node in nodes])
+    
+
+    def getAverageSurplus(self):
+        ''' Returns the average surplus of all nodes. '''
+
+        return self.getTotalSurplus() / float(self.graph.number_of_nodes())
+    
+
     def getTotalPayloads(self):
         ''' Returns the total number of payloads. '''
 
         return self.totalPayloads
     
+
     def getNearestNode(self, pos, epsilon=None):
         ''' Returns the nearest node to the given position.
             If epsilon is not None and no node is within epsilon, returns None. '''

@@ -199,11 +199,11 @@ class parallel_env(ParallelEnv):
                 dtype=np.int32
             )
 
-        # Add vertex people/payload information 
+        # Add vertex deficit/surplus information 
         if observe_method in ["adjacency"]:
             state_space["vertex_state"] = spaces.Dict({
                 v: spaces.Box(
-                    # people, payloads
+                    # deficit, surplus
                     low = np.array([-1.0, -1.0], dtype=np.float32),
                     high = np.array([np.inf, np.inf], dtype=np.float32)
                 ) for v in range(self.sdg.graph.number_of_nodes())
@@ -230,9 +230,10 @@ class parallel_env(ParallelEnv):
         
 
         if observe_method in ["pyg"]:
+            # deficit, surplus
             state_space["current_node"] = spaces.Box(
-                low = -1,
-                high = np.inf,
+                low = np.array([-1, -1], dtype=np.int32),
+                high = np.array([np.inf, np.inf], dtype=np.int32),
                 dtype=np.int32
             )
 
@@ -244,8 +245,8 @@ class parallel_env(ParallelEnv):
                     high = np.array([np.inf, np.inf], dtype=np.float32),
                 )
                 node_space = spaces.Box(
-                    # nodeType, degree, people, payloads, max_capacity
-                    low = np.array([-np.inf, 0.0, -1.0, 0.0, -1.0], dtype=np.float32),
+                    # nodeType, degree, surplus, deficit, max_capacity
+                    low = np.array([-np.inf, 0.0, 0.0, -1.0, -1.0], dtype=np.float32),
                     high = np.array([np.inf, np.inf, np.inf, np.inf, np.inf], dtype=np.float32),
                 )
                 node_type_idx = 0
@@ -256,8 +257,8 @@ class parallel_env(ParallelEnv):
                     high = np.array([np.inf], dtype=np.float32),
                 )
                 node_space = spaces.Box(
-                    # ID, nodeType, lastNode, currentAction, people, payloads, max_capacity
-                    low = np.array([0.0, -np.inf, -1.0, -1.0, -1.0, 0.0, -1.0], dtype=np.float32),
+                    # ID, nodeType, lastNode, currentAction, surplus, deficit, max_capacity
+                    low = np.array([0.0, -np.inf, -1.0, -1.0, 0.0, -1.0, -1.0], dtype=np.float32),
                     high = np.array([np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf], dtype=np.float32),
                 )
                 node_type_idx = 1
@@ -336,7 +337,7 @@ class parallel_env(ParallelEnv):
 
         # Draw the graph.
         pos = nx.get_node_attributes(self.sdg.graph, 'pos')
-        state = [self.sdg.getNodeState(i) for i in self.sdg.graph.nodes]
+        state = [self.sdg.getNodeDeficit(i) for i in self.sdg.graph.nodes]
         labels = {n: f"{n}\n{self.sdg.getNodePeople(n)},{self.sdg.getNodePayloads(n)}" for n in self.sdg.graph.nodes}
         nx.draw_networkx(self.sdg.graph,
                          pos,
@@ -362,7 +363,7 @@ class parallel_env(ParallelEnv):
             plt.plot([], [], color=color, marker=marker, linestyle='None', label=agent.name, alpha=0.5)
 
         plt.legend(bbox_to_anchor=(1.04, 1), loc="upper left")
-        plt.gcf().text(0,0,f'Current step: {self.step_count}, Total State: {self.sdg.getTotalState()}')
+        plt.gcf().text(0,0,f'Current step: {self.step_count}, Total Deficit: {self.sdg.getTotalDeficit()}, Total Surplus: {self.sdg.getTotalSurplus()}')
         plt.show()
 
 
@@ -416,7 +417,7 @@ class parallel_env(ParallelEnv):
 
         # Update beliefs for nodes which we can see.
         for v in vertices:
-            agent.stateBelief[v] = self.sdg.getNodeState(v)
+            agent.stateBelief[v] = self.sdg.getNodeDeficit(v)
 
         # Perform communication.
         for a in agentList:
@@ -428,7 +429,7 @@ class parallel_env(ParallelEnv):
                         if v not in vertices:
                             vertices.append(v)
                         # Update state belief for communicates nodes.
-                        agent.stateBelief[v] = self.sdg.getNodeState(v)
+                        agent.stateBelief[v] = self.sdg.getNodeDeficit(v) # TODO: add state belief to observation similar
         
         agents = sorted(agents, key=lambda a: a.id)
         vertices = sorted(vertices)
@@ -445,7 +446,7 @@ class parallel_env(ParallelEnv):
             obs["vertex_state"] = {v: np.array([-1.0, -1.0]) for v in range(self.sdg.graph.number_of_nodes())}
 
             for node in vertices:
-                obs["vertex_state"][node] = np.array([self.sdg.getNodePeople(node), self.sdg.getNodePayloads(node)], dtype=np.float32)
+                obs["vertex_state"][node] = np.array([self.sdg.getNodeDeficit(node), self.sdg.getNodeSurplus(node)], dtype=np.float32)
 
         # Add weighted adjacency matrix (normalized).
         if observe_method in ["adjacency"]:
@@ -461,9 +462,9 @@ class parallel_env(ParallelEnv):
         
         if observe_method in ["pyg"]:
             if agent.edge == None:
-                obs["current_node"] = self.sdg.getNodeState(agent.lastNode)
+                obs["current_node"] = np.array([self.sdg.getNodeDeficit(agent.lastNode), self.sdg.getNodeSurplus(agent.lastNode)])
             else:
-                obs["current_node"] = -1
+                obs["current_node"] = np.array([-1, -1])
 
         # Add agent graph position vector.
         if observe_method in ["adjacency"]:
@@ -524,6 +525,8 @@ class parallel_env(ParallelEnv):
                     payloads = a.payloads,
                     max_capacity = a.max_capacity,
                     depot = False, # for consistency in the gnn
+                    surplus = a.payloads,
+                    deficit = -1.0,
                     lastNode = g.nodes[a.lastNode]["id"] if a.lastNode in g.nodes else -1.0,
                     currentAction = a.currentAction if a in agents else -1.0
                 )
@@ -579,11 +582,11 @@ class parallel_env(ParallelEnv):
 
             if self.action_method == "neighbors":
                 edge_attrs = ["weight", "neighborIndex"]
-                node_attrs = ["nodeType", "degree", "people", "payloads", "max_capacity"]
+                node_attrs = ["nodeType", "degree", "surplus", "deficit", "max_capacity"]
                 # node_attrs = ["id", "nodeType", "idlenessTime", "lastNode", "currentAction"]
             else:
                 edge_attrs = ["weight"]
-                node_attrs = ["id", "nodeType", "lastNode", "currentAction", "people", "payloads", "max_capacity"]
+                node_attrs = ["id", "nodeType", "lastNode", "currentAction", "surplus", "deficit", "max_capacity"]
 
             # Convert g to PyG
             data = from_networkx(
@@ -739,10 +742,10 @@ class parallel_env(ParallelEnv):
         # Record miscellaneous information.
         info_dict["node_visits"] = self.nodeVisits
         info_dict["agent_count"] = len(self.agents)
-        info_dict["total_state"] = self.sdg.getTotalState()
+        info_dict["total_state"] = self.sdg.getTotalDeficit()
 
         #if all people saved, set lastStep = True
-        if self.sdg.getTotalState() == 0:
+        if self.sdg.getTotalDeficit() == 0:
             lastStep = True
 
         # Check truncation conditions.
@@ -750,16 +753,17 @@ class parallel_env(ParallelEnv):
             for agent in self.agents:
                 # Provide an end-of-episode reward.
                 if self.reward_method_terminal == "average":
-                    # reward_dict[agent] += (self.sdg.getTotalPayloads() / (self.sdg.getTotalState() + 1)) * self.state_reward * self.beta 
-                    # reward_dict[agent] += self._minMaxNormalize(self.sdg.getTotalState(), minimum=0.0, maximum=self.sdg.getTotalPayloads()) * self.state_reward * self.beta 
-                    reward_dict[agent] += self._minMaxNormalize(-self.sdg.getTotalState(), minimum=-self.sdg.getTotalPayloads(), maximum=0.0) * self.state_reward * self.beta 
+                    # reward_dict[agent] += (self.sdg.getTotalPayloads() / (self.sdg.getTotalDeficit() + 1)) * self.state_reward * self.beta 
+                    # reward_dict[agent] += self._minMaxNormalize(self.sdg.getTotalDeficit(), minimum=0.0, maximum=self.sdg.getTotalPayloads()) * self.state_reward * self.beta 
+                    reward_dict[agent] += self._minMaxNormalize(-self.sdg.getTotalDeficit(), minimum=-self.sdg.getTotalPayloads(), maximum=0.0) * self.state_reward * self.beta 
                     # reward_dict[agent] += (1 / (self.step_count + 1)) * self.step_reward
                     reward_dict[agent] += self._minMaxNormalize(1 / (self.step_count + 1e-8), minimum=(1 / (self.max_cycles + 1e-8)), maximum=(1 / self.sdg.graph.number_of_nodes())) * self.step_reward * self.beta
-                    print(f"Total State: {self.sdg.getTotalState()}")
-                    print(f"Agent Payloads: {agent.payloads}")
-                    print(f"Agent Max Capacity: {agent.max_capacity}")
-                    print(f"Node 0 State: {self.sdg.getNodeState(0)}")
-                    print(f"Node 1 State: {self.sdg.getNodeState(1)}")
+                    print(f"Total Deficit: {self.sdg.getTotalDeficit()}")
+                    print(f"Total Surplus: {self.sdg.getTotalSurplus()}")
+                    print(f"AGENT ID: {agent.id}")
+                    print(f"Agent {agent.id} Payloads: {agent.payloads}")
+                    print(f"Agent {agent.id} Max Capacity: {agent.max_capacity}")
+                    
 
                 elif self.reward_method_terminal != "none":
                     raise ValueError(f"Invalid terminal reward method {self.reward_method_terminal}")
@@ -920,12 +924,12 @@ class parallel_env(ParallelEnv):
             raise ValueError(f"Invalid action method {self.action_method}")
 
 
-    def _dropPayload(self, agent): # TODO: normalize reward
+    def _dropPayload(self, agent): 
         ''' Drop a payload and return some reward. 
             There is a positive reward for dropping a payload for a person in need, and 0 reward for dropping unneeded payloads. 
             There is also a negative reward for attempting to drop a payload when the agent is not carrying anything. '''
         
-        initial_state = self.sdg.getNodeState(agent.lastNode)
+        initial_deficit = self.sdg.getNodeDeficit(agent.lastNode)
 
         if agent.payloads > 0:
             # drop a payload
@@ -933,9 +937,9 @@ class parallel_env(ParallelEnv):
             agent.payloads -= 1 
 
             # positive reward for dropping properly proportional to number of payloads at that node, no reward for dropping too much
-            new_state = self.sdg.getNodeState(agent.lastNode)
+            new_deficit = self.sdg.getNodeDeficit(agent.lastNode)
 
-            reward = (initial_state - new_state) * self.drop_reward
+            reward = (initial_deficit - new_deficit) * self.drop_reward
             reward *= self.alpha
             return reward
         
@@ -943,13 +947,13 @@ class parallel_env(ParallelEnv):
         return 0
 
 
-    def _loadPayload(self, agent): # TODO: normalize reward
+    def _loadPayload(self, agent): 
         ''' Load a payload and return the appropriate reward. 
             There is 0 reward for loading properly and a negative reward for taking a payload from a person in need. 
             There is also a larger negative reward for attempting to take a payload when none exists or the agent is already at max capacity. '''
         
         node_payloads = self.sdg.getNodePayloads(agent.lastNode)
-        initial_state = self.sdg.getNodeState(agent.lastNode)
+        initial_deficit = self.sdg.getNodeDeficit(agent.lastNode)
 
         if agent.payloads < agent.max_capacity and node_payloads > 0:
             # agent is carrying less than its max capacity and the node has available payloads
@@ -957,9 +961,9 @@ class parallel_env(ParallelEnv):
             agent.payloads += 1
             
             # no reward for loading properly, negative reward for taking away from people
-            new_state = self.sdg.getNodeState(agent.lastNode)
+            new_deficit = self.sdg.getNodeDeficit(agent.lastNode)
 
-            reward = (initial_state - new_state) * self.load_reward
+            reward = (initial_deficit - new_deficit) * self.load_reward
             reward *= self.alpha
             return reward 
         
