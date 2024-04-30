@@ -750,10 +750,11 @@ class parallel_env(ParallelEnv):
             for agent in self.agents:
                 # Provide an end-of-episode reward.
                 if self.reward_method_terminal == "average":
-                    # reward_dict[agent] += (self.sdg.getTotalPayloads() / (self.sdg.getTotalState() + 1)) * self.state_reward * self.beta # TODO: normalize?
-                    # reward_dict[agent] += self._minMaxNormalize(self.sdg.getTotalState(), minimum=0.0, maximum=self.sdg.getTotalPayloads()) * self.state_reward * self.beta # TODO: normalize?
-                    reward_dict[agent] += self._minMaxNormalize(-self.sdg.getTotalState(), minimum=-self.sdg.getTotalPayloads(), maximum=0.0) * self.state_reward * self.beta # TODO: normalize?
+                    # reward_dict[agent] += (self.sdg.getTotalPayloads() / (self.sdg.getTotalState() + 1)) * self.state_reward * self.beta 
+                    # reward_dict[agent] += self._minMaxNormalize(self.sdg.getTotalState(), minimum=0.0, maximum=self.sdg.getTotalPayloads()) * self.state_reward * self.beta 
+                    reward_dict[agent] += self._minMaxNormalize(-self.sdg.getTotalState(), minimum=-self.sdg.getTotalPayloads(), maximum=0.0) * self.state_reward * self.beta 
                     # reward_dict[agent] += (1 / (self.step_count + 1)) * self.step_reward
+                    reward_dict[agent] += self._minMaxNormalize(1 / (self.step_count + 1e-8), minimum=(1 / (self.max_cycles + 1e-8)), maximum=(1 / self.sdg.graph.number_of_nodes())) * self.step_reward * self.beta
                     print(f"Total State: {self.sdg.getTotalState()}")
                     print(f"Agent Payloads: {agent.payloads}")
                     print(f"Agent Max Capacity: {agent.max_capacity}")
