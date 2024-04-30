@@ -230,10 +230,16 @@ class parallel_env(ParallelEnv):
         
 
         if observe_method in ["pyg"]:
-            # deficit, surplus
-            state_space["current_node"] = spaces.Box(
-                low = np.array([-1.0, -1.0], dtype=np.float32),
-                high = np.array([np.inf, np.inf], dtype=np.float32)
+            state_space["current_node_deficit"] = spaces.Box(
+                low = -1,
+                high = np.inf,
+                dtype=np.int32
+            )
+
+            state_space["current_node_surplus"] = spaces.Box(
+                low = -1,
+                high = np.inf,
+                dtype=np.int32
             )
 
         if observe_method in ["pyg"]:
@@ -461,9 +467,11 @@ class parallel_env(ParallelEnv):
         
         if observe_method in ["pyg"]:
             if agent.edge == None:
-                obs["current_node"] = np.array([self.sdg.getNodeDeficit(agent.lastNode), self.sdg.getNodeSurplus(agent.lastNode)])
+                obs["current_node_deficit"] = self.sdg.getNodeDeficit(agent.lastNode)
+                obs["current_node_surplus"] = self.sdg.getNodeSurplus(agent.lastNode)
             else:
-                obs["current_node"] = np.array([-1, -1])
+                obs["current_node_deficit"] = -1
+                obs["current_node_surplus"] = -1
 
         # Add agent graph position vector.
         if observe_method in ["adjacency"]:
