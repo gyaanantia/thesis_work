@@ -43,7 +43,7 @@ class PatrollingRunner(Runner):
 
             # Set the delta steps to 1.
             delta_steps = np.ones((self.n_rollout_threads, self.num_agents, 1), dtype=np.int32)
-            for step in range(self.episode_length):
+            for step in range(self.episode_length): # TODO: this doesn't truncate?
                 # Sample actions
                 # Sample actions, collect values and probabilities.
                 values, actions, action_log_probs, rnn_states, rnn_states_critic, actions_env = self.collect(step)
@@ -137,7 +137,7 @@ class PatrollingRunner(Runner):
         obs, share_obs, rewards, dones, infos, values, actions, action_log_probs, rnn_states, rnn_states_critic, delta_steps, available_actions = data
         
         # update env_infos if done
-        dones_env = np.all(dones, axis=-1)
+        dones_env = np.all(dones, axis=-1) # TODO: never used?
 
         # Add the total state information to env infos.
         self.env_infos["total_state"] = [i["total_state"] for i in infos]

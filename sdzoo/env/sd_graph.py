@@ -57,8 +57,8 @@ class SDGraph():
                     deficit = 0
                 )
 
-                self.graph.nodes[i]["deficit"] = self.calcNodeDeficit(i)
-                self.graph.nodes[i]["surplus"] = self.calcNodeSurplus(i)
+                self.setNodeDeficit(i)
+                self.setNodeSurplus(i)
                 
                 # Add a self-loop to the node.
                 # self.graph.add_edge(i, i)
@@ -133,8 +133,8 @@ class SDGraph():
 
         # calculate deficit and surplus for each node
         for node in self.graph.nodes:
-            self.graph.nodes[node]["deficit"] = self.calcNodeDeficit(node)
-            self.graph.nodes[node]["surplus"] = self.calcNodeSurplus(node)
+            self.setNodeDeficit(node)
+            self.setNodeSurplus(node)
 
             
         for edge in self.graph.edges:
@@ -164,6 +164,8 @@ class SDGraph():
 
         for node in self.graph.nodes:
             self.graph.nodes[node]["payloads"] = 0 if not self.graph.nodes[node]["depot"] else self.totalPayloads
+            self.setNodeDeficit(node)
+            self.setNodeSurplus(node)
 
 
     def getNodePosition(self, node):
@@ -206,8 +208,8 @@ class SDGraph():
         ''' Adds `num` payloads to `node`'''
 
         self.graph.nodes[node]["payloads"] += num
-        self.graph.nodes[node]["deficit"] = self.calcNodeDeficit(node)
-        self.graph.nodes[node]["surplus"] = self.calcNodeSurplus(node)
+        self.setNodeDeficit(node)
+        self.setNodeSurplus(node)
 
 
     def takePayloads(self, node, num):
@@ -217,8 +219,8 @@ class SDGraph():
         if self.graph.nodes[node]["payloads"] < 0:
             raise ValueError("Attempting to take from a node with 0 payloads")
         
-        self.graph.nodes[node]["deficit"] = self.calcNodeDeficit(node)
-        self.graph.nodes[node]["surplus"] = self.calcNodeSurplus(node)
+        self.setNodeDeficit(node)
+        self.setNodeSurplus(node)
 
 
     def isDepot(self, node):
@@ -233,10 +235,10 @@ class SDGraph():
         return self.graph.nodes[node]["people"]
     
 
-    def calcNodeDeficit(self, node):
+    def setNodeDeficit(self, node):
         ''' Calculates the node's deficit. '''
         
-        return max(self.getNodePeople(node) - self.getNodePayloads(node), 0)
+        self.graph.nodes[node]["deficit"] =  max(self.getNodePeople(node) - self.getNodePayloads(node), 0)
     
 
     def getNodeDeficit(self, node):
@@ -247,9 +249,13 @@ class SDGraph():
 
     def getTotalDeficit(self):
         ''' Returns the deficit of all nodes. '''
+        deficit = nx.get_node_attributes(self.graph, "deficit")
+        t = nx.get_node_attributes(self.graph, "nodeType")
+        for node, nodeType in t.items():
+            if nodeType == NODE_TYPE.AGENT:
+                deficit[node] = 0
 
-        nodes = self.graph.nodes
-        return sum([self.getNodeDeficit(node) for node in nodes])
+        return sum(deficit.values())
     
 
     def getAverageDeficit(self):
@@ -258,10 +264,10 @@ class SDGraph():
         return self.getTotalDeficit() / float(self.graph.number_of_nodes())
     
 
-    def calcNodeSurplus(self, node):
-        ''' Calculates the node's surplus. '''
+    def setNodeSurplus(self, node):
+        ''' Calculates and the node's surplus. '''
         
-        return max(self.getNodePayloads(node) - self.getNodePeople(node), 0)
+        self.graph.nodes[node]["surplus"] =  max(self.getNodePayloads(node) - self.getNodePeople(node), 0)
     
 
     def getNodeSurplus(self, node):
@@ -272,9 +278,13 @@ class SDGraph():
 
     def getTotalSurplus(self):
         ''' Returns the surplus of all nodes. '''
-
-        nodes = self.graph.nodes
-        return sum([self.getNodeSurplus(node) for node in nodes])
+        surplus = nx.get_node_attributes(self.graph, "surplus")
+        t = nx.get_node_attributes(self.graph, "nodeType")
+        for node, nodeType in t.items():
+            if nodeType == NODE_TYPE.AGENT:
+                surplus[node] = 0
+        
+        return sum(surplus.values())
     
 
     def getAverageSurplus(self):

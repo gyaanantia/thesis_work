@@ -164,6 +164,61 @@ class TestEnvironment(unittest.TestCase):
         self.assertEqual(stepSize, 2.0)
         self.assertEqual(reached, True)
 
+    def test_single_load_drop(self):
+        import networkx as nx
+        graph = SDGraph("/home/gyaan/data/sdzoo/sdzoo/env/9nodes.graph")
+        env = parallel_env(graph, num_agents=1, observe_method="pyg")
+        agent = env.agents[0]
+        env.reset(seed=42)
+
+        self.agrpahssertEqual(env.sdg.getTotalDeficit(), 25)
+        self.assertEqual(env.sdg.getTotalSurplus(), 25)
+        self.assertEqual(agent.payloads, 0)
+        self.assertEqual(agent.lastNode, 1)
+
+        reached, stepSize = env._moveTowardsNode(agent, 5, 40.0)
+        self.assertEqual(reached, True)
+        env._loadPayload(agent)
+
+        self.assertEqual(env.sdg.getTotalDeficit(), 25)
+        self.assertEqual(env.sdg.getTotalSurplus(), 24)
+
+        reached, stepSize = env._moveTowardsNode(agent, 1, 40.0)
+        self.assertEqual(reached, True)
+        env._dropPayload(agent)
+
+        self.assertEqual(env.sdg.getTotalDeficit(), 24)
+        self.assertEqual(env.sdg.getTotalSurplus(), 24)
+        self.assertEqual(agent.payloads, 0)
+        self.assertEqual(env.sdg.getNodePayloads(agent.lastNode), 1)
+        self.assertEqual(env.sdg.getNodeDeficit(agent.lastNode), 3)
+
+        reached, stepSize = env._moveTowardsNode(agent, 5, 40.0)
+        self.assertEqual(reached, True)
+        self.assertEqual(agent.payloads, 0)
+        env._loadPayload(agent)
+        self.assertEqual(agent.payloads, 1)
+        env._loadPayload(agent)
+        self.assertEqual(agent.payloads, 1)
+        self.assertEqual(env.sdg.getTotalDeficit(), 24)
+        self.assertEqual(env.sdg.getTotalSurplus(), 23)
+
+        reached, stepSize = env._moveTowardsNode(agent, 1, 40.0)
+        self.assertEqual(reached, True)
+        self.assertEqual(agent.payloads, 1)
+        env._dropPayload(agent)
+        self.assertEqual(agent.payloads, 0)
+        self.assertEqual(env.sdg.getTotalDeficit(), 23)
+        self.assertEqual(env.sdg.getTotalSurplus(), 23)
+        env._dropPayload(agent)
+        self.assertEqual(agent.payloads, 0)
+        self.assertEqual(env.sdg.getTotalDeficit(), 23)
+        self.assertEqual(env.sdg.getTotalSurplus(), 23)
+
+        obs = env.observe(agent)
+        print(obs)
+        
 
 if __name__ == '__main__':
-    unittest.main()
+    # unittest.main()
+    TestEnvironment().test_single_load_drop()
