@@ -165,7 +165,7 @@ class SDEnv(object):
                 break
 
             # Check if any agents are ready
-            ready = any([info[a]["ready"] for a in self.env.possible_agents])
+            ready = any([info[a]["ready"] for a in self.env.agents])
 
         # If we are sharing the reward, then we need to sum the rewards.
         if self.share_reward:
