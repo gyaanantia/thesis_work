@@ -19,7 +19,7 @@ all_args.observation_radius = 200.0
 all_args.observation_bitmap_size = 40
 all_args.communication_model = "bernoulli"
 all_args.communication_probability = 0.1
-all_args.alpha = 1.0
+all_args.alpha = 1.2
 all_args.beta = 1.0
 
 
