@@ -297,7 +297,7 @@ class PatrollingRunner(Runner):
                 rnn_states = np.array(np.split(_t2n(rnn_states), self.n_render_rollout_threads))
 
                 actions_env = [actions[idx, :, 0] for idx in range(self.n_render_rollout_threads)]
-
+                print(actions_env)
                 # step
                 combined_obs, render_rewards, dones, infos = render_env.step(actions_env)
 
