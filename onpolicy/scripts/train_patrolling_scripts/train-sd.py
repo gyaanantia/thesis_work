@@ -6,7 +6,7 @@ os.environ["WANDB__SERVICE_WAIT"] = "300"
 parser = get_config()
 all_args = parse_args([], parser)
 
-all_args.experiment_name = "search-and-deliver-cumberland-test"
+all_args.experiment_name = "search-and-deliver-cumberland-self-loop-test"
 all_args.env_name = "search-deliver"
 all_args.user_name = "ideas-mas"
 

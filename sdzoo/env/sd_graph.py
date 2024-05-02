@@ -61,7 +61,7 @@ class SDGraph():
                 self.setNodeSurplus(i)
                 
                 # Add a self-loop to the node.
-                # self.graph.add_edge(i, i)
+                self.graph.add_edge(i, i, weight=0.0)
 
                 # Create edges.
                 numEdges = int(file.readline())
@@ -131,10 +131,11 @@ class SDGraph():
                 self.graph.nodes[node]["people"] += people
                 people_left -= people
 
-        # calculate deficit and surplus for each node
+        # calculate deficit and surplus for each node, add self loop
         for node in self.graph.nodes:
             self.setNodeDeficit(node)
             self.setNodeSurplus(node)
+            self.graph.add_edge(node, node, weight=0.0)
 
             
         for edge in self.graph.edges:

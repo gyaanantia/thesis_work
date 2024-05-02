@@ -572,9 +572,17 @@ class parallel_env(ParallelEnv):
                     # Add degree to the node features.
                     dg.nodes[i]["degree"] = dg.out_degree(i)
 
+                    # make the current node neighbor 0 if it is not an agent
+                    if dg.nodes[i]["nodeType"] == NODE_TYPE.AGENT:
+                        dg.edges[(i, i)]["neighborIndex"] = -1
+                    else:
+                        dg.edges[(i, i)]["neighborIndex"] = 0
+
                     # Add neighbor indices to the edges.
-                    idx = 0
-                    for j in dg.neighbors(i):
+                    idx = 1
+                    for j in dg.neighbors(i): 
+                        if j == i:
+                            continue
                         if dg.nodes[j]["nodeType"] == NODE_TYPE.AGENT:
                             dg.edges[(i, j)]["neighborIndex"] = -1
                         else:
