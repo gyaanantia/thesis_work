@@ -6,11 +6,11 @@ os.environ["WANDB__SERVICE_WAIT"] = "300"
 parser = get_config()
 all_args = parse_args([], parser)
 
-all_args.experiment_name = "search-and-deliver-cumberland-longer-episodes"
+all_args.experiment_name = "search-and-deliver-9node-test-with-agent-info"
 all_args.env_name = "search-deliver"
 all_args.user_name = "ideas-mas"
 
-all_args.num_agents = 6
+all_args.num_agents = 4
 all_args.agent_speed = 40.0
 all_args.action_method = "neighbors"
 all_args.observe_method = "pyg"
@@ -34,17 +34,17 @@ all_args.reward_method_terminal = "average"
 
 # all_args.graph_random = True
 # all_args.graph_random_nodes = 9
-all_args.graph_name = "cumberland"
+all_args.graph_name = "9nodes"
 all_args.graph_file = f"../../../sdzoo/env/{all_args.graph_name}.graph"
 # all_args.num_env_steps = 10000 #total number of steps
-all_args.num_env_steps = 1e6 #total number of steps
-all_args.episode_length = 1000 #number of steps in a training episode
+all_args.num_env_steps = 1e5 #total number of steps
+all_args.episode_length = 200 #number of steps in a training episode
 all_args.max_cycles = all_args.episode_length #number of steps in an environment episode
 
 all_args.algorithm_name = "mappo"
 all_args.use_gnn_policy = True
 all_args.use_gnn_mlp_policy = True
-all_args.gnn_layer_N = 10
+all_args.gnn_layer_N = 4
 all_args.gnn_hidden_size = 128
 all_args.gnn_skip_connections = True
 all_args.use_recurrent_policy = True

@@ -242,6 +242,18 @@ class parallel_env(ParallelEnv):
                 dtype=np.int32
             )
 
+            state_space["agent_max_capacity"] = spaces.Box(
+                low = 0,
+                high = np.inf,
+                dtype=np.int32
+            )
+
+            state_space["agent_payloads"] = spaces.Box(
+                low = 0,
+                high = np.inf,
+                dtype=np.int32
+            )
+
         if observe_method in ["pyg"]:
             if self.action_method == "neighbors":
                 edge_space = spaces.Box(
@@ -472,6 +484,9 @@ class parallel_env(ParallelEnv):
             else:
                 obs["current_node_deficit"] = -1
                 obs["current_node_surplus"] = -1
+            
+            obs["agent_max_capacity"] = agent.max_capacity
+            obs["agent_payloads"] = agent.payloads
 
         # Add agent graph position vector.
         if observe_method in ["adjacency"]:
