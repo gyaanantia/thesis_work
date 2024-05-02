@@ -572,15 +572,9 @@ class parallel_env(ParallelEnv):
                     # Add degree to the node features.
                     dg.nodes[i]["degree"] = dg.out_degree(i)
 
-                    # Add neighbor index 0 to self loop
-                    if dg.nodes[i]["nodeType"] != NODE_TYPE.AGENT:
-                        dg.edges[(i, i)]["neighborIndex"] = 0
-
                     # Add neighbor indices to the edges.
-                    idx = 1
+                    idx = 0
                     for j in dg.neighbors(i): 
-                        if j == i:
-                            continue
                         if dg.nodes[j]["nodeType"] == NODE_TYPE.AGENT:
                             dg.edges[(i, j)]["neighborIndex"] = -1
                         else:
@@ -922,8 +916,8 @@ class parallel_env(ParallelEnv):
             if agent.edge == None:
                 # All neighbors of the current node are available.
                 actionMap = np.zeros(self.action_space(agent).n, dtype=np.float32)
-                # numNeighbors = self.sdg.graph.degree(agent.lastNode) - 1 # subtract 1 since the self loop adds 2 to the degree
-                numNeighbors = self.sdg.graph.degree(agent.lastNode)
+                numNeighbors = self.sdg.graph.degree(agent.lastNode) - 1 # subtract 1 since the self loop adds 2 to the degree
+                # numNeighbors = self.sdg.graph.degree(agent.lastNode)
                 actionMap[:numNeighbors] = 1.0 
                 actionMap[self.action_neighbors_max_degree + ACTION.LOAD] = float(agent.payloads < agent.max_capacity and self.sdg.getNodePayloads(agent.lastNode) > 0) # load mask
                 actionMap[self.action_neighbors_max_degree + ACTION.DROP] = float(agent.payloads > 0) # drop mask
