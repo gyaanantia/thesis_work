@@ -296,7 +296,7 @@ class parallel_env(ParallelEnv):
         ''' Sets the environment to its initial state. '''
 
         self.reset_count += 1
-
+        self.total_reward = 0.0
         if seed != None:
             random.seed(seed)
 
@@ -380,7 +380,7 @@ class parallel_env(ParallelEnv):
             plt.plot([], [], color=color, marker=marker, linestyle='None', label=agent.name, alpha=0.5)
 
         plt.legend(bbox_to_anchor=(1.04, 1), loc="upper left")
-        plt.gcf().text(0,0,f'Current step: {self.step_count}, Total Deficit: {self.sdg.getTotalDeficit()}, Total Surplus: {self.sdg.getTotalSurplus()}')
+        plt.gcf().text(0,0,f'Current step: {self.step_count}, Total Deficit: {self.sdg.getTotalDeficit()}, Total Surplus: {self.sdg.getTotalSurplus()}, Total Reward: {self.total_reward}')
         plt.show()
 
 
@@ -632,7 +632,7 @@ class parallel_env(ParallelEnv):
             data.agent_mask = agent_mask
 
             # Calculate neighbor information.
-            neighbors = []
+            neighbors = [subgraphNodes.index(agent.lastNode)] if agent.edge is None else [] # include the current node in the gnn if the agent is not on an edge
             for neighbor in neighborhood:
                 if subgraph.nodes[neighbor]["nodeType"] != NODE_TYPE.AGENT:
                     neighbors.append(subgraphNodes.index(neighbor))
@@ -796,6 +796,8 @@ class parallel_env(ParallelEnv):
                 self.dones[agent] = True
 
             self.agents = []
+
+        self.total_reward += sum(reward_dict.values())
 
         done_dict = {agent: self.dones[agent] for agent in self.possible_agents}
 
