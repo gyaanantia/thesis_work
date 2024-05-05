@@ -717,9 +717,9 @@ class parallel_env(ParallelEnv):
                 # Store this as the agent's last action.
                 agent.currentAction = action
 
-                isnt_movement = action == self.action_neighbors_max_degree + ACTION.DROP or action == self.action_neighbors_max_degree + ACTION.LOAD
+                not_movement = action == self.action_neighbors_max_degree + ACTION.DROP or action == self.action_neighbors_max_degree + ACTION.LOAD
 
-                if isnt_movement:
+                if not_movement:
                     if action == self.action_neighbors_max_degree + ACTION.DROP:
                         # attempt to drop the payload(s), add the appropriate reward
                         reward_dict[agent] += self._dropPayload(agent)  
@@ -754,7 +754,10 @@ class parallel_env(ParallelEnv):
                 
                         # The agent has exceeded its movement budget for this step.
                         if stepSize <= 0.0:
-                            break      
+                            break  
+                        
+                    # Add a small penalty for each step taken.
+                    reward_dict[agent] -= 0.05    
 
         # Perform observations.
         for agent in self.possible_agents:
@@ -823,7 +826,7 @@ class parallel_env(ParallelEnv):
                     raise ValueError(f"Invalid action {action} for agent {agent.name}. Node {agent.lastNode} has only {self.sdg.graph.degree(agent.lastNode)} neighbors.")
                 dstNode = list(self.sdg.graph.neighbors(agent.lastNode))[action]
             else:
-                if action != agent.currentAction: # correct for load/drop actions
+                if action != agent.currentAction: 
                     raise ValueError(f"Invalid action {action} for agent {agent.name}. Must complete action {agent.currentAction} first.")
                 dstNode = list(self.sdg.graph.neighbors(agent.lastNode))[action]
         

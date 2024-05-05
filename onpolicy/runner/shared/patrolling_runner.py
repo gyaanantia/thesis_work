@@ -303,6 +303,10 @@ class PatrollingRunner(Runner):
 
                 # Split the combined observations into obs and share_obs, then combine across environments.
                 obs, share_obs, available_actions = self._process_combined_obs(combined_obs)
+                # print(f"AVAILABLE: {available_actions}")
+                # print(f"OBS: {obs}")
+                # print(f"REWARD: {render_rewards}")
+                # print(f"DATA: {[zzz[4].x for zzz in obs[0]]}")
 
                 if not np.all(dones):
                     if ipython_clear_output:
@@ -313,6 +317,8 @@ class PatrollingRunner(Runner):
                 if self.all_args.save_gifs:        
                     image = infos[0]["frame"]
                     frames.append(image)
+                
+                # time.sleep(1.0)
 
             # save gif
             if self.all_args.save_gifs:
