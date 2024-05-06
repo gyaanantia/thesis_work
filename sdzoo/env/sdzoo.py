@@ -560,8 +560,9 @@ class parallel_env(ParallelEnv):
 
                     # Add all of a.lastNode's neighbors as edges to the agent's node.
                     for neighbor in g.neighbors(a.lastNode):
-                        if g.nodes[neighbor]["nodeType"] != NODE_TYPE.AGENT:
-                            g.add_edge(agent_node_id, neighbor, weight=g.edges[(a.lastNode, neighbor)]["weight"])
+                        # if g.nodes[neighbor]["nodeType"] != NODE_TYPE.AGENT:
+                        #     g.add_edge(agent_node_id, neighbor, weight=g.edges[(a.lastNode, neighbor)]["weight"])
+                        g.add_edge(agent_node_id, neighbor, weight=g.edges[(a.lastNode, neighbor)]["weight"])
                 else:
                     node1_id, node2_id = a.edge
 
