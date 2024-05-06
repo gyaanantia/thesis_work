@@ -262,9 +262,9 @@ class parallel_env(ParallelEnv):
                     high = np.array([np.inf, np.inf], dtype=np.float32),
                 )
                 node_space = spaces.Box(
-                    # nodeType, degree, surplus, deficit, max_capacity
-                    low = np.array([-np.inf, 0.0, 0.0, -1.0, -1.0], dtype=np.float32),
-                    high = np.array([np.inf, np.inf, np.inf, np.inf, np.inf], dtype=np.float32),
+                    # id, nodeType, degree, surplus, deficit, max_capacity
+                    low = np.array([-np.inf, -np.inf, 0.0, 0.0, -1.0, -1.0], dtype=np.float32),
+                    high = np.array([np.inf, np.inf, np.inf, np.inf, np.inf, np.inf], dtype=np.float32),
                 )
                 node_type_idx = 0
             else:
@@ -604,7 +604,7 @@ class parallel_env(ParallelEnv):
 
             if self.action_method == "neighbors":
                 edge_attrs = ["weight", "neighborIndex"]
-                node_attrs = ["nodeType", "degree", "surplus", "deficit", "max_capacity"]
+                node_attrs = ["id", "nodeType", "degree", "surplus", "deficit", "max_capacity"]
                 # node_attrs = ["id", "nodeType", "idlenessTime", "lastNode", "currentAction"]
             else:
                 edge_attrs = ["weight"]
