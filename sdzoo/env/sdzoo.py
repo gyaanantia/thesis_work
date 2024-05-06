@@ -963,10 +963,13 @@ class parallel_env(ParallelEnv):
             self.sdg.putPayloads(agent.lastNode, 1)
             agent.payloads -= 1 
 
-            # positive reward for dropping properly proportional to number of payloads at that node, no reward for dropping too much
-            new_deficit = self.sdg.getNodeDeficit(agent.lastNode)
+            # positive reward for dropping properly, negative reward for dropping too much
+            if self.sdg.getNodeSurplus(agent.lastNode) > 0:
+                reward = -0.5
+            else:
+                new_deficit = self.sdg.getNodeDeficit(agent.lastNode)
+                reward = (initial_deficit - new_deficit) * self.drop_reward
 
-            reward = (initial_deficit - new_deficit) * self.drop_reward
             reward *= self.alpha
             return reward
         
