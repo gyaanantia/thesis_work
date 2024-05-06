@@ -6,11 +6,11 @@ os.environ["WANDB__SERVICE_WAIT"] = "300"
 parser = get_config()
 all_args = parse_args([], parser)
 
-all_args.experiment_name = "search-and-deliver-more-alpha-movement-penalty"
+all_args.experiment_name = "search-and-deliver-more-alpha-movement-penalty-4-agents"
 all_args.env_name = "search-deliver"
 all_args.user_name = "ideas-mas"
 
-all_args.num_agents = 1
+all_args.num_agents = 4
 all_args.agent_speed = 40.0
 all_args.action_method = "neighbors"
 all_args.observe_method = "pyg"
@@ -19,7 +19,7 @@ all_args.observation_radius = np.inf
 all_args.observation_bitmap_size = 40
 all_args.communication_model = "bernoulli"
 all_args.communication_probability = 0.1
-all_args.alpha = 1.2
+all_args.alpha = 1.3
 all_args.beta = 1.0
 
 
@@ -65,7 +65,7 @@ all_args.hidden_size = 512
 all_args.n_rollout_threads = 1
 all_args.save_interval = 1000
 all_args.cuda = True
-all_args.cuda_idx = 4
+all_args.cuda_idx = 1
 
 all_args.use_wandb = True
 

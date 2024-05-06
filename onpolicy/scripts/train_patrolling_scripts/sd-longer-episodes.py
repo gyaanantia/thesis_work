@@ -6,11 +6,11 @@ os.environ["WANDB__SERVICE_WAIT"] = "300"
 parser = get_config()
 all_args = parse_args([], parser)
 
-all_args.experiment_name = "search-and-deliver-longer-movement-penalty"
+all_args.experiment_name = "search-and-deliver-longer-movement-penalty-4-agents"
 all_args.env_name = "search-deliver"
 all_args.user_name = "ideas-mas"
 
-all_args.num_agents = 1
+all_args.num_agents = 4
 all_args.agent_speed = 40.0
 all_args.action_method = "neighbors"
 all_args.observe_method = "pyg"
