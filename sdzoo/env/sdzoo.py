@@ -266,7 +266,7 @@ class parallel_env(ParallelEnv):
                     low = np.array([-np.inf, -np.inf, 0.0, 0.0, -1.0, -1.0], dtype=np.float32),
                     high = np.array([np.inf, np.inf, np.inf, np.inf, np.inf, np.inf], dtype=np.float32),
                 )
-                node_type_idx = 0
+                node_type_idx = 1
             else:
                 edge_space = spaces.Box(
                     # weight
