@@ -979,7 +979,7 @@ class parallel_env(ParallelEnv):
 
             # positive reward for dropping properly, negative reward for dropping too much
             if self.sdg.getNodeSurplus(agent.lastNode) > 0:
-                reward = -0.5
+                reward = -0.2
             else:
                 new_deficit = self.sdg.getNodeDeficit(agent.lastNode)
                 reward = (initial_deficit - new_deficit) * self.drop_reward

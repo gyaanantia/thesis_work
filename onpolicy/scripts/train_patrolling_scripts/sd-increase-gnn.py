@@ -6,7 +6,7 @@ os.environ["WANDB__SERVICE_WAIT"] = "300"
 parser = get_config()
 all_args = parse_args([], parser)
 
-all_args.experiment_name = "search-and-deliver-9nodes-movement-penalty-4-agents"
+all_args.experiment_name = "search-and-deliver-9nodes-neighbor-nongraph-overdrop-0.2"
 all_args.env_name = "search-deliver"
 all_args.user_name = "ideas-mas"
 
@@ -37,7 +37,7 @@ all_args.reward_method_terminal = "average"
 all_args.graph_name = "9nodes"
 all_args.graph_file = f"../../../sdzoo/env/{all_args.graph_name}.graph"
 # all_args.num_env_steps = 10000 #total number of steps
-all_args.num_env_steps = 1e5 * 2 #total number of steps
+all_args.num_env_steps = 1e5 * 5 #total number of steps
 all_args.episode_length = 200 #number of steps in a training episode
 all_args.max_cycles = all_args.episode_length #number of steps in an environment episode
 
