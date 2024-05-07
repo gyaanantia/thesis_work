@@ -254,6 +254,13 @@ class parallel_env(ParallelEnv):
                 dtype=np.int32
             )
 
+            state_space["nearby_agents"] = spaces.Box(
+                low = 0,
+                high = len(self.possible_agents) - 1,
+                shape=(self.max_neighbors,),
+                dtype=np.int32
+            )
+
         if observe_method in ["pyg"]:
             if self.action_method == "neighbors":
                 edge_space = spaces.Box(
@@ -534,6 +541,7 @@ class parallel_env(ParallelEnv):
             # Ensure that we add a node for the current agent, even if it's dead.
             agentsPlusEgo = agents + [agent] if agent not in agents else agents
 
+            nearby_agents = 0
             # Traverse through all visible agents and add their positions as new nodes to g
             for a in agentsPlusEgo:
                 # To avoid node ID conflicts, generate a unique node ID
@@ -558,6 +566,10 @@ class parallel_env(ParallelEnv):
                     # If the agent is not on an edge, add an edge from the agent's node to the node it is currently on
                     g.add_edge(agent_node_id, a.lastNode, weight=0.0)
 
+                    # If the agent is not the ego agent and is sharing the node with the ego agent, increase the nearby_agents count
+                    if a != agent and a.lastNode == agent.lastNode and agent.edge is None:
+                        nearby_agents += 1
+
                     # Add all of a.lastNode's neighbors as edges to the agent's node.
                     for neighbor in g.neighbors(a.lastNode):
                         if g.nodes[neighbor]["nodeType"] != NODE_TYPE.AGENT:
@@ -572,6 +584,8 @@ class parallel_env(ParallelEnv):
                     g.add_edge(agent_node_id, node1_id, weight=weight_to_node1)
                     g.add_edge(agent_node_id, node2_id, weight=weight_to_node2)
             
+            obs["nearby_agents"] = nearby_agents
+
             # Normalize the edge weights of g.
             weights = nx.get_edge_attributes(g, 'weight')
             maxWeight = max(weights.values())
