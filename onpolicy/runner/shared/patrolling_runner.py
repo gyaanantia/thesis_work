@@ -43,7 +43,9 @@ class PatrollingRunner(Runner):
 
             # Set the delta steps to 1.
             delta_steps = np.ones((self.n_rollout_threads, self.num_agents, 1), dtype=np.int32)
-            for step in range(self.episode_length): # TODO: this doesn't truncate?
+            step = 0
+            dones = np.array([False])
+            while not all(dones) and step < self.episode_length:
                 # Sample actions
                 # Sample actions, collect values and probabilities.
                 values, actions, action_log_probs, rnn_states, rnn_states_critic, actions_env = self.collect(step)
