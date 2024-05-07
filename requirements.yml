@@ -199,7 +199,6 @@ dependencies:
       - nvidia-nvjitlink-cu12==12.4.127
       - nvidia-nvtx-cu12==12.1.105
       - pettingzoo==1.24.3
-      - sdzoo==0.0.1
       - termcolor==2.4.0
       - torch==2.2.2
       - torch-geometric==2.4.0
