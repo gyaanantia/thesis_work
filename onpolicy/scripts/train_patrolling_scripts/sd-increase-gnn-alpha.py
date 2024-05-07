@@ -38,7 +38,7 @@ all_args.graph_name = "9nodes"
 all_args.graph_file = f"../../../sdzoo/env/{all_args.graph_name}.graph"
 # all_args.num_env_steps = 10000 #total number of steps
 all_args.num_env_steps = 1e5 * 5 #total number of steps
-all_args.episode_length = 200 #number of steps in a training episode
+all_args.episode_length = 100 #number of steps in a training episode
 all_args.max_cycles = all_args.episode_length #number of steps in an environment episode
 
 all_args.algorithm_name = "mappo"
@@ -65,7 +65,7 @@ all_args.hidden_size = 512
 all_args.n_rollout_threads = 1
 all_args.save_interval = 1000
 all_args.cuda = True
-all_args.cuda_idx = 1
+all_args.cuda_idx = 2
 
 all_args.use_wandb = True
 
