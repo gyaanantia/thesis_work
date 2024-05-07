@@ -6,7 +6,7 @@ os.environ["WANDB__SERVICE_WAIT"] = "300"
 parser = get_config()
 all_args = parse_args([], parser)
 
-all_args.experiment_name = "search-and-deliver-9nodes-increase-gnn-simplify-reward-beta"
+all_args.experiment_name = "search-and-deliver-increase-gnn-simplify-reward-beta-trunc"
 all_args.env_name = "search-deliver"
 all_args.user_name = "ideas-mas"
 
@@ -65,7 +65,7 @@ all_args.hidden_size = 512
 all_args.n_rollout_threads = 1
 all_args.save_interval = 1000
 all_args.cuda = True
-all_args.cuda_idx = 1
+all_args.cuda_idx = 6
 
 all_args.use_wandb = True
 
