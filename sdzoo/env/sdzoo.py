@@ -796,7 +796,7 @@ class parallel_env(ParallelEnv):
                     # reward_dict[agent] += self._minMaxNormalize(self.sdg.getTotalDeficit(), minimum=0.0, maximum=self.sdg.getTotalPayloads()) * self.state_reward * self.beta 
                     reward_dict[agent] += self._minMaxNormalize(-self.sdg.getTotalDeficit(), minimum=-self.sdg.getTotalPayloads(), maximum=0.0) * self.state_reward * self.beta 
                     # reward_dict[agent] += (1 / (self.step_count + 1)) * self.step_reward
-                    reward_dict[agent] += self._minMaxNormalize(1 / (self.step_count + 1e-8), minimum=(1 / (self.max_cycles + 1e-8)), maximum=(1 / self.sdg.graph.number_of_nodes())) * self.step_reward * self.beta
+                    # reward_dict[agent] += self._minMaxNormalize(1 / (self.step_count + 1e-8), minimum=(1 / (self.max_cycles + 1e-8)), maximum=(1 / self.sdg.graph.number_of_nodes())) * self.step_reward * self.beta
                     print(f"Total Deficit: {self.sdg.getTotalDeficit()}")
                     print(f"Total Surplus: {self.sdg.getTotalSurplus()}")
                     print(f"AGENT ID: {agent.id}")
@@ -977,12 +977,9 @@ class parallel_env(ParallelEnv):
             self.sdg.putPayloads(agent.lastNode, 1)
             agent.payloads -= 1 
 
-            # positive reward for dropping properly, negative reward for dropping too much
-            if self.sdg.getNodeSurplus(agent.lastNode) > 0:
-                reward = -0.2
-            else:
-                new_deficit = self.sdg.getNodeDeficit(agent.lastNode)
-                reward = (initial_deficit - new_deficit) * self.drop_reward
+            # positive reward for dropping a payload for a person in need
+            new_deficit = self.sdg.getNodeDeficit(agent.lastNode)
+            reward = (initial_deficit - new_deficit) * self.drop_reward
 
             reward *= self.alpha
             return reward
