@@ -6,7 +6,7 @@ os.environ["WANDB__SERVICE_WAIT"] = "300"
 parser = get_config()
 all_args = parse_args([], parser)
 
-all_args.experiment_name = "search-and-deliver-9nodes-neighbor-nongraph-overdrop-0.2"
+all_args.experiment_name = "search-and-deliver-9nodes-increase-gnn-simplify-reward-alpha"
 all_args.env_name = "search-deliver"
 all_args.user_name = "ideas-mas"
 
@@ -19,7 +19,7 @@ all_args.observation_radius = np.inf
 all_args.observation_bitmap_size = 40
 all_args.communication_model = "bernoulli"
 all_args.communication_probability = 0.1
-all_args.alpha = 1.0
+all_args.alpha = 1.3
 all_args.beta = 1.0
 
 
