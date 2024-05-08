@@ -6,7 +6,7 @@ os.environ["WANDB__SERVICE_WAIT"] = "300"
 parser = get_config()
 all_args = parse_args([], parser)
 
-all_args.experiment_name = "search-and-deliver-alpha-simplify-reward"
+all_args.experiment_name = "search-and-deliver-alpha-simplify-reward-random-9"
 all_args.env_name = "search-deliver"
 all_args.user_name = "ideas-mas"
 
@@ -19,8 +19,8 @@ all_args.observation_radius = np.inf
 all_args.observation_bitmap_size = 40
 all_args.communication_model = "bernoulli"
 all_args.communication_probability = 0.1
-all_args.alpha = 1.3
-all_args.beta = 1.0
+all_args.alpha = 1.0
+all_args.beta = 0.5
 
 
 all_args.drop_reward = 1.0
@@ -32,13 +32,13 @@ all_args.agent_max_capacity = 1
 all_args.reward_method_terminal = "average"
 # all_args.reward_interval = 1
 
-# all_args.graph_random = True
-# all_args.graph_random_nodes = 9
+all_args.graph_random = True
+all_args.graph_random_nodes = 9
 all_args.graph_name = "9nodes"
 all_args.graph_file = f"../../../sdzoo/env/{all_args.graph_name}.graph"
 # all_args.num_env_steps = 10000 #total number of steps
-all_args.num_env_steps = 1e5 * 5 #total number of steps
-all_args.episode_length = 100 #number of steps in a training episode
+all_args.num_env_steps = 1e5 * 6.25 #total number of steps
+all_args.episode_length = 125 #number of steps in a training episode
 all_args.max_cycles = all_args.episode_length #number of steps in an environment episode
 
 all_args.algorithm_name = "mappo"
