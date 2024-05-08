@@ -40,7 +40,7 @@ class SDAgent():
         self.currentAction = -1.0
         self.lastNode = self.startingNode
         self.lastNodeVisited = None
-        self.stateBelief = {i: -1.0 for i in range(self.max_nodes)}
+        self.stateBelief = {i: np.array([-1.0, -1.0]) for i in range(self.max_nodes)}
         self.payloads = 0
 
     
@@ -441,7 +441,7 @@ class parallel_env(ParallelEnv):
 
         # Update beliefs for nodes which we can see.
         for v in vertices:
-            agent.stateBelief[v] = self.sdg.getNodeDeficit(v)
+            agent.stateBelief[v] = np.array([self.sdg.getNodeDeficit(v), self.sdg.getNodeSurplus(v)])
 
         # Perform communication.
         for a in agentList:
@@ -453,7 +453,7 @@ class parallel_env(ParallelEnv):
                         if v not in vertices:
                             vertices.append(v)
                         # Update state belief for communicates nodes.
-                        agent.stateBelief[v] = self.sdg.getNodeDeficit(v) # TODO: add state belief to observation similar
+                        agent.stateBelief[v] = np.array([self.sdg.getNodeDeficit(v), self.sdg.getNodeSurplus(v)]) # TODO: add state belief to observation similar
         
         agents = sorted(agents, key=lambda a: a.id)
         vertices = sorted(vertices)
@@ -486,8 +486,8 @@ class parallel_env(ParallelEnv):
         
         if observe_method in ["pyg"]:
             if agent.edge == None:
-                obs["current_node_deficit"] = self.sdg.getNodeDeficit(agent.lastNode)
-                obs["current_node_surplus"] = self.sdg.getNodeSurplus(agent.lastNode)
+                obs["current_node_deficit"] = agent.stateBelief[agent.lastNode][0]
+                obs["current_node_surplus"] = agent.stateBelief[agent.lastNode][1]
             else:
                 obs["current_node_deficit"] = -1
                 obs["current_node_surplus"] = -1
@@ -500,7 +500,7 @@ class parallel_env(ParallelEnv):
             graphPos = {}
             # Set default value of -1.0
             for a in self.possible_agents:
-                graphPos[a] = -1.0 * np.ones(3, dtype=np.float32)
+                graphPos[a] = -1.0 * np.ones(5, dtype=np.float32)
             
             # Fill in actual values for agents we can see.
             for a in agents:
@@ -522,12 +522,20 @@ class parallel_env(ParallelEnv):
             # Copy pg map to g
             g = deepcopy(self.sdg.graph)
 
+            # Set attributes of patrol graph nodes based on agent's beliefs.
+            deficit_beliefs = [agent.stateBelief[i][0] for i in range(self.sdg.graph.number_of_nodes())]
+            surplus_beliefs = [agent.stateBelief[i][1] for i in range(self.sdg.graph.number_of_nodes())]
+
             # Set attributes of patrol graph nodes.
             for node in g.nodes:
                 # Add dummy lastNode, currentAction, and max_capacity values as attributes in g for all nodes.
                 g.nodes[node]["lastNode"] = -1.0
                 g.nodes[node]["currentAction"] = -1.0
                 g.nodes[node]["max_capacity"] = -1.0
+
+                # Set the deficit and surplus values for each node the agent knows about.
+                g.nodes[node]["deficit"] = deficit_beliefs[node]
+                g.nodes[node]["surplus"] = surplus_beliefs[node]
 
 
                 # Set appropriate visibility for each node  
@@ -541,7 +549,9 @@ class parallel_env(ParallelEnv):
             # Ensure that we add a node for the current agent, even if it's dead.
             agentsPlusEgo = agents + [agent] if agent not in agents else agents
 
+            # count the number of nearby agents
             nearby_agents = 0
+
             # Traverse through all visible agents and add their positions as new nodes to g
             for a in agentsPlusEgo:
                 # To avoid node ID conflicts, generate a unique node ID
@@ -771,7 +781,7 @@ class parallel_env(ParallelEnv):
                             break  
                         
                     # Add a small penalty for each step taken.
-                    reward_dict[agent] -= 0.05    
+                    reward_dict[agent] -= 0.05 * pathLen  
 
         # Perform observations.
         for agent in self.possible_agents:
@@ -985,7 +995,7 @@ class parallel_env(ParallelEnv):
             return reward
         
         # raise ValueError(f"BAD DROP:\nAgent Payloads: {agent.payloads}")
-        return 0
+        return -0.1
 
 
     def _loadPayload(self, agent): 
@@ -1010,7 +1020,7 @@ class parallel_env(ParallelEnv):
         
         # load should be impossible because of action masking
         # raise ValueError(f"BAD LOAD:\nAgent Payloads: {agent.payloads}\nAgent Max Capacity: {agent.max_capacity}\nNode Payloads: {node_payloads}")
-        return 0
+        return -0.1
 
     
     def __str__(self):
