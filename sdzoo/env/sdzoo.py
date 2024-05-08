@@ -781,7 +781,7 @@ class parallel_env(ParallelEnv):
                             break  
                         
                     # Add a small penalty for each step taken.
-                    reward_dict[agent] -= 0.05 * self.alpha  
+                    reward_dict[agent] -= 0.05 
 
         # Perform observations.
         for agent in self.possible_agents:

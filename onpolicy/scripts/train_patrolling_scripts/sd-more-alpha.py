@@ -19,8 +19,8 @@ all_args.observation_radius = np.inf
 all_args.observation_bitmap_size = 40
 all_args.communication_model = "bernoulli"
 all_args.communication_probability = 0.8
-all_args.alpha = 2.5
-all_args.beta = 10.0
+all_args.alpha = 1.4
+all_args.beta = 1.0
 
 
 all_args.drop_reward = 1.0
