@@ -65,7 +65,7 @@ class R_Actor(nn.Module):
             
 
             self.neighbor_scorer = MLPLayer(input_dim=args.gnn_hidden_size, output_dim=1, hidden_size=self.hidden_size, layer_N=3, use_orthogonal=args.use_orthogonal, use_ReLU=args.use_ReLU, use_layer_norm=False)
-            self.load_drop_scorer = MLPLayer(input_dim=get_shape_from_obs_space(obs_space_nongraph)[0], output_dim=2, hidden_size=self.hidden_size, layer_N=2, use_orthogonal=args.use_orthogonal, use_ReLU=args.use_ReLU, use_layer_norm=False)
+            self.load_drop_scorer = MLPLayer(input_dim=get_shape_from_obs_space(obs_space_nongraph)[0], output_dim=2, hidden_size=self.hidden_size, layer_N=4, use_orthogonal=args.use_orthogonal, use_ReLU=args.use_ReLU, use_layer_norm=False)
 
             input_dim = self.MAX_NEIGHBORS + 2 # 2 for load and drop scores
 
@@ -143,7 +143,7 @@ class R_Actor(nn.Module):
                 actor_features = self.base.gatherNodeFeats(actor_features, agent_idx)
             
             # send the non-graph features through a different MLP
-            load_drop_scores = self.load_drop_scorer(obs_nongraph)
+            load_drop_scores = self.load_drop_scorer(obs_nongraph) # TODO: try changing this to use the graph embeddings instead of other MLP
 
             # Concatenate the graph and non-graph features.
             actor_features = torch.cat([actor_features, load_drop_scores], dim=-1)

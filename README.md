@@ -33,4 +33,4 @@ Packages are as follows:
 
 ## Operation
 
-You may run the example in `onpolicy/scripts/train_patrolling_scripts/mappo.ipynb`.
+You may run the example in `onpolicy/scripts/train_sd_scripts/mappo.ipynb`.

@@ -15,7 +15,7 @@ from onpolicy.config import get_config
 from onpolicy.envs.patrolling.SDEnv import SDEnv
 from onpolicy.envs.env_wrappers import SubprocVecEnv, DummyVecEnv
 
-from onpolicy.scripts.train.train_patrolling import parse_args, validateArgs
+from onpolicy.scripts.train.train_sd import parse_args, validateArgs
 
 def make_train_env(all_args):
     def get_env_fn(rank):

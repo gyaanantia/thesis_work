@@ -20,7 +20,7 @@ class ACTION(IntEnum):
 class SDAgent():
     ''' This class stores all agent state. '''
 
-    def __init__(self, id, position=(0.0, 0.0), speed = 1.0, observationRadius=np.inf, startingNode=None, currentState = 1, max_nodes = 50, max_capacity = 1):
+    def __init__(self, id, position=(0.0, 0.0), speed = 1.0, observationRadius=np.inf, startingNode=None, currentState = 1, max_nodes = 50, max_capacity = 1, num_agents = 1):
         self.id = id
         self.name = f"agent_{id}"
         self.startingPosition = position
@@ -30,6 +30,7 @@ class SDAgent():
         self.currentState = currentState
         self.max_nodes = max_nodes
         self.max_capacity = max_capacity
+        self.num_agents = num_agents
         self.reset()
     
     
@@ -41,6 +42,7 @@ class SDAgent():
         self.lastNode = self.startingNode
         self.lastNodeVisited = None
         self.stateBelief = {i: np.array([-1.0, -1.0]) for i in range(self.max_nodes)}
+        self.agentBelief = {a: np.array([-1.0, -1.0, -1.0, -1.0, -1.0]) for a in range(self.num_agents)}
         self.payloads = 0
 
     
@@ -148,7 +150,8 @@ class parallel_env(ParallelEnv):
                         startingNode = self.agentOrigins[i],
                         observationRadius = self.observationRadius,
                         max_nodes = self.max_nodes,
-                        max_capacity = agent_max_capacity
+                        max_capacity = agent_max_capacity,
+                        num_agents = num_agents
             ) for i in range(num_agents)
         ]
 
@@ -254,11 +257,36 @@ class parallel_env(ParallelEnv):
                 dtype=np.int32
             )
 
-            state_space["nearby_agents"] = spaces.Box(
-                low = 0,
-                high = len(self.possible_agents) - 1,
-                dtype=np.int32
-            )
+            for a in self.possible_agents:
+                state_space[f"agent_{a.id}_id"] = spaces.Box(
+                    low = -1,
+                    high = np.inf,
+                    dtype=np.int32
+                )
+
+                state_space[f"agent_{a.id}_lastNode"] = spaces.Box(
+                    low = -1,
+                    high = np.inf,
+                    dtype=np.int32
+                )
+
+                state_space[f"agent_{a.id}_currentAction"] = spaces.Box(
+                    low = -1,
+                    high = np.inf,
+                    dtype=np.int32
+                )
+
+                state_space[f"agent_{a.id}_payloads"] = spaces.Box(
+                    low = -1,
+                    high = np.inf,
+                    dtype=np.int32
+                )
+
+                state_space[f"agent_{a.id}_max_capacity"] = spaces.Box(
+                    low = -1,
+                    high = np.inf,
+                    dtype=np.int32
+                )
 
         if observe_method in ["pyg"]:
             if self.action_method == "neighbors":
@@ -442,6 +470,9 @@ class parallel_env(ParallelEnv):
         for v in vertices:
             agent.stateBelief[v] = np.array([self.sdg.getNodeDeficit(v), self.sdg.getNodeSurplus(v)])
 
+        # Add own agents belief
+        agent.agentBelief[agent.id] = np.array([agent.id, agent.lastNode, agent.currentAction, agent.payloads, agent.max_capacity])
+
         # Perform communication.
         for a in agentList:
             if a != agent and self.comms_model.canReceive(a, agent):
@@ -453,6 +484,8 @@ class parallel_env(ParallelEnv):
                             vertices.append(v)
                         # Update state belief for communicates nodes.
                         agent.stateBelief[v] = np.array([self.sdg.getNodeDeficit(v), self.sdg.getNodeSurplus(v)]) # TODO: add state belief to observation similar
+                
+                agent.agentBelief[a.id] = np.array([a.id, a.lastNode, a.currentAction, a.payloads, a.max_capacity])
         
         agents = sorted(agents, key=lambda a: a.id)
         vertices = sorted(vertices)
@@ -593,7 +626,13 @@ class parallel_env(ParallelEnv):
                     g.add_edge(agent_node_id, node1_id, weight=weight_to_node1)
                     g.add_edge(agent_node_id, node2_id, weight=weight_to_node2)
             
-            obs["nearby_agents"] = nearby_agents
+            for a in self.possible_agents:
+                obs[f"agent_{a.id}_id"] = agent.agentBelief[a.id][0]
+                obs[f"agent_{a.id}_lastNode"] = agent.agentBelief[a.id][1]
+                obs[f"agent_{a.id}_currentAction"] = agent.agentBelief[a.id][2]
+                obs[f"agent_{a.id}_payloads"] = agent.agentBelief[a.id][3]
+                obs[f"agent_{a.id}_max_capacity"] = agent.agentBelief[a.id][4]
+                
 
             # Normalize the edge weights of g.
             weights = nx.get_edge_attributes(g, 'weight')

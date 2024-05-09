@@ -1,4 +1,4 @@
-from onpolicy.scripts.train.train_patrolling import get_config, parse_args, main
+from onpolicy.scripts.train.train_sd import get_config, parse_args, main
 import numpy as np
 import os
 os.environ["WANDB__SERVICE_WAIT"] = "300"
@@ -6,7 +6,7 @@ os.environ["WANDB__SERVICE_WAIT"] = "300"
 parser = get_config()
 all_args = parse_args([], parser)
 
-all_args.experiment_name = "search-and-deliver-no-skip-steps-neighbor-nongraph-overdrop-0.2"
+all_args.experiment_name = "search-and-deliver-smaller-obs-neighbor-nongraph-overdrop-0.2"
 all_args.env_name = "search-deliver"
 all_args.user_name = "ideas-mas"
 
@@ -15,11 +15,11 @@ all_args.agent_speed = 40.0
 all_args.action_method = "neighbors"
 all_args.observe_method = "pyg"
 all_args.observe_method_global = "adjacency"
-all_args.observation_radius = np.inf
+all_args.observation_radius = 100
 all_args.observation_bitmap_size = 40
 all_args.communication_model = "bernoulli"
 all_args.communication_probability = 0.1
-all_args.alpha = 1.0
+all_args.alpha = 1.3
 all_args.beta = 1.0
 
 
@@ -55,7 +55,7 @@ all_args.use_gae_amadm = True
 all_args.share_policy = True
 all_args.sep_share_policy = False
 all_args.share_reward = False
-all_args.skip_steps_sync = False # these need to be false to use max cycles
+all_args.skip_steps_sync = True # these need to be false to use max cycles
 all_args.skip_steps_async = False
 all_args.use_ReLU = True
 # all_args.lr = 1e-3
@@ -65,7 +65,7 @@ all_args.hidden_size = 512
 all_args.n_rollout_threads = 1
 all_args.save_interval = 1000
 all_args.cuda = True
-all_args.cuda_idx = 5
+all_args.cuda_idx = 0
 
 all_args.use_wandb = True
 

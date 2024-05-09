@@ -1,4 +1,4 @@
-from onpolicy.scripts.train.train_patrolling import get_config, parse_args, main
+from onpolicy.scripts.train.train_sd import get_config, parse_args, main
 
 import os
 os.environ["WANDB__SERVICE_WAIT"] = "300"
