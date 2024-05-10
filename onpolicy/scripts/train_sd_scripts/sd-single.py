@@ -6,11 +6,11 @@ os.environ["WANDB__SERVICE_WAIT"] = "300"
 parser = get_config()
 all_args = parse_args([], parser)
 
-all_args.experiment_name = "search-and-deliver-increase-layers-alpha-only-gnn"
+all_args.experiment_name = "search-and-deliver-gnn-only"
 all_args.env_name = "search-deliver"
 all_args.user_name = "ideas-mas"
 
-all_args.num_agents = 6
+all_args.num_agents = 1
 all_args.agent_speed = 40.0
 all_args.action_method = "neighbors"
 all_args.observe_method = "pyg"
@@ -18,7 +18,7 @@ all_args.observe_method_global = "adjacency"
 all_args.observation_radius = np.inf
 all_args.observation_bitmap_size = 40
 all_args.communication_model = "bernoulli"
-all_args.communication_probability = 1.0
+all_args.communication_probability = 0.8
 all_args.alpha = 1.4
 all_args.beta = 1.0
 
@@ -38,13 +38,13 @@ all_args.graph_name = "cumberland"
 all_args.graph_file = f"../../../sdzoo/env/{all_args.graph_name}.graph"
 # all_args.num_env_steps = 10000 #total number of steps
 all_args.num_env_steps = 1e5 * 6 #total number of steps
-all_args.episode_length = 300 #number of steps in a training episode
+all_args.episode_length = 500 #number of steps in a training episode
 all_args.max_cycles = all_args.episode_length #number of steps in an environment episode
 
 all_args.algorithm_name = "mappo"
 all_args.use_gnn_policy = True
 all_args.use_gnn_mlp_policy = True
-all_args.gnn_layer_N = 13
+all_args.gnn_layer_N = 10
 all_args.gnn_hidden_size = 128
 all_args.gnn_skip_connections = True
 all_args.use_recurrent_policy = True
@@ -65,7 +65,7 @@ all_args.hidden_size = 512
 all_args.n_rollout_threads = 1
 all_args.save_interval = 1000
 all_args.cuda = True
-all_args.cuda_idx = 2
+all_args.cuda_idx = 7
 
 all_args.use_wandb = True
 

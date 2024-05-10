@@ -232,61 +232,61 @@ class parallel_env(ParallelEnv):
             }) # type: ignore
         
 
-        if observe_method in ["pyg"]:
-            state_space["current_node_deficit"] = spaces.Box(
-                low = -1,
-                high = np.inf,
-                dtype=np.int32
-            )
+        # if observe_method in ["pyg"]:
+            # state_space["current_node_deficit"] = spaces.Box(
+            #     low = -1,
+            #     high = np.inf,
+            #     dtype=np.int32
+            # )
 
-            state_space["current_node_surplus"] = spaces.Box(
-                low = -1,
-                high = np.inf,
-                dtype=np.int32
-            )
+            # state_space["current_node_surplus"] = spaces.Box(
+            #     low = -1,
+            #     high = np.inf,
+            #     dtype=np.int32
+            # )
 
-            state_space["agent_max_capacity"] = spaces.Box(
-                low = 0,
-                high = np.inf,
-                dtype=np.int32
-            )
+            # state_space["agent_max_capacity"] = spaces.Box(
+            #     low = 0,
+            #     high = np.inf,
+            #     dtype=np.int32
+            # )
 
-            state_space["agent_payloads"] = spaces.Box(
-                low = 0,
-                high = np.inf,
-                dtype=np.int32
-            )
+            # state_space["agent_payloads"] = spaces.Box(
+            #     low = 0,
+            #     high = np.inf,
+            #     dtype=np.int32
+            # )
 
-            for a in self.possible_agents:
-                state_space[f"agent_{a.id}_id"] = spaces.Box(
-                    low = -1,
-                    high = np.inf,
-                    dtype=np.int32
-                )
+            # for a in self.possible_agents:
+            #     state_space[f"agent_{a.id}_id"] = spaces.Box(
+            #         low = -1,
+            #         high = np.inf,
+            #         dtype=np.int32
+            #     )
 
-                state_space[f"agent_{a.id}_lastNode"] = spaces.Box(
-                    low = -1,
-                    high = np.inf,
-                    dtype=np.int32
-                )
+            #     state_space[f"agent_{a.id}_lastNode"] = spaces.Box(
+            #         low = -1,
+            #         high = np.inf,
+            #         dtype=np.int32
+            #     )
 
-                state_space[f"agent_{a.id}_currentAction"] = spaces.Box(
-                    low = -1,
-                    high = np.inf,
-                    dtype=np.int32
-                )
+            #     state_space[f"agent_{a.id}_currentAction"] = spaces.Box(
+            #         low = -1,
+            #         high = np.inf,
+            #         dtype=np.int32
+            #     )
 
-                state_space[f"agent_{a.id}_payloads"] = spaces.Box(
-                    low = -1,
-                    high = np.inf,
-                    dtype=np.int32
-                )
+            #     state_space[f"agent_{a.id}_payloads"] = spaces.Box(
+            #         low = -1,
+            #         high = np.inf,
+            #         dtype=np.int32
+            #     )
 
-                state_space[f"agent_{a.id}_max_capacity"] = spaces.Box(
-                    low = -1,
-                    high = np.inf,
-                    dtype=np.int32
-                )
+            #     state_space[f"agent_{a.id}_max_capacity"] = spaces.Box(
+            #         low = -1,
+            #         high = np.inf,
+            #         dtype=np.int32
+            #     )
 
         if observe_method in ["pyg"]:
             if self.action_method == "neighbors":
@@ -516,16 +516,16 @@ class parallel_env(ParallelEnv):
                 adjacency[edge[1], edge[0]] = weight
             obs["adjacency"] = adjacency
         
-        if observe_method in ["pyg"]:
-            if agent.edge == None:
-                obs["current_node_deficit"] = agent.stateBelief[agent.lastNode][0]
-                obs["current_node_surplus"] = agent.stateBelief[agent.lastNode][1]
-            else:
-                obs["current_node_deficit"] = -1
-                obs["current_node_surplus"] = -1
+        # if observe_method in ["pyg"]:
+        #     if agent.edge == None:
+        #         obs["current_node_deficit"] = agent.stateBelief[agent.lastNode][0]
+        #         obs["current_node_surplus"] = agent.stateBelief[agent.lastNode][1]
+        #     else:
+        #         obs["current_node_deficit"] = -1
+        #         obs["current_node_surplus"] = -1
 
-            obs["agent_max_capacity"] = agent.max_capacity
-            obs["agent_payloads"] = agent.payloads
+        #     obs["agent_max_capacity"] = agent.max_capacity
+        #     obs["agent_payloads"] = agent.payloads
 
         # Add agent graph position vector.
         if observe_method in ["adjacency"]:
@@ -626,12 +626,12 @@ class parallel_env(ParallelEnv):
                     g.add_edge(agent_node_id, node1_id, weight=weight_to_node1)
                     g.add_edge(agent_node_id, node2_id, weight=weight_to_node2)
             
-            for a in self.possible_agents:
-                obs[f"agent_{a.id}_id"] = agent.agentBelief[a.id][0]
-                obs[f"agent_{a.id}_lastNode"] = agent.agentBelief[a.id][1]
-                obs[f"agent_{a.id}_currentAction"] = agent.agentBelief[a.id][2]
-                obs[f"agent_{a.id}_payloads"] = agent.agentBelief[a.id][3]
-                obs[f"agent_{a.id}_max_capacity"] = agent.agentBelief[a.id][4]
+            # for a in self.possible_agents:
+            #     obs[f"agent_{a.id}_id"] = agent.agentBelief[a.id][0]
+            #     obs[f"agent_{a.id}_lastNode"] = agent.agentBelief[a.id][1]
+            #     obs[f"agent_{a.id}_currentAction"] = agent.agentBelief[a.id][2]
+            #     obs[f"agent_{a.id}_payloads"] = agent.agentBelief[a.id][3]
+            #     obs[f"agent_{a.id}_max_capacity"] = agent.agentBelief[a.id][4]
                 
 
             # Normalize the edge weights of g.
@@ -688,7 +688,7 @@ class parallel_env(ParallelEnv):
             else:
                 idx = subgraphNodes.index(f"agent_{agent.id}_pos")
                 neighborhood = list(subgraph.neighbors(f"agent_{agent.id}_pos"))
-            agent_mask = np.zeros(data.num_nodes, dtype=bool)
+            agent_mask = np.zeros(self.max_nodes, dtype=bool)
             agent_mask[idx] = True
             data.agent_idx = idx
             data.agent_mask = agent_mask

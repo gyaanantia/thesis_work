@@ -65,7 +65,8 @@ class R_Actor(nn.Module):
             
 
             self.neighbor_scorer = MLPLayer(input_dim=args.gnn_hidden_size, output_dim=1, hidden_size=self.hidden_size, layer_N=3, use_orthogonal=args.use_orthogonal, use_ReLU=args.use_ReLU, use_layer_norm=False)
-            self.load_drop_scorer = MLPLayer(input_dim=get_shape_from_obs_space(obs_space_nongraph)[0], output_dim=2, hidden_size=self.hidden_size, layer_N=4, use_orthogonal=args.use_orthogonal, use_ReLU=args.use_ReLU, use_layer_norm=False)
+            # self.load_drop_scorer = MLPLayer(input_dim=get_shape_from_obs_space(obs_space_nongraph)[0], output_dim=2, hidden_size=self.hidden_size, layer_N=4, use_orthogonal=args.use_orthogonal, use_ReLU=args.use_ReLU, use_layer_norm=False)
+            self.load_drop_scorer = MLPLayer(input_dim=args.gnn_hidden_size, output_dim=2, hidden_size=self.hidden_size, layer_N=3, use_orthogonal=args.use_orthogonal, use_ReLU=args.use_ReLU, use_layer_norm=False)
 
             input_dim = self.MAX_NEIGHBORS + 2 # 2 for load and drop scores
 
@@ -125,10 +126,16 @@ class R_Actor(nn.Module):
                     actor_features = F.pad(actor_features, (0, 0, 0, self.MAX_NODES - actor_features.shape[1]), mode='constant', value=0.0)
 
                 neighbors_mask = check(np.array(graphs.neighbors_mask)).to(**self.tpdv).bool()
-                # Extend the mask for the full feature size.
-                neighbors_mask = neighbors_mask.unsqueeze(2).repeat(1, 1, actor_features.shape[-1])
-                actor_features_masked = torch.where(neighbors_mask, actor_features, 0.0)
+                agent_mask = check(np.array(graphs.agent_mask)).to(**self.tpdv).bool()
+                
+                # Extend the masks for the full feature size.
+                neighbors_mask = neighbors_mask.unsqueeze(2).repeat(1, 1, actor_features.shape[-1])      
+                actor_features_masked = torch.where(neighbors_mask, actor_features, 0.0) 
                 scores = self.neighbor_scorer(actor_features_masked)
+                
+                agent_mask = agent_mask.unsqueeze(2).repeat(1, 1, actor_features.shape[-1])
+                load_drop_masked = torch.where(agent_mask, actor_features, 0.0)
+                load_drop_scores = self.load_drop_scorer(load_drop_masked)
                 
                 # Shift the scores to the correct position.
                 scores_shifted = torch.zeros((actor_features.shape[0], self.MAX_NEIGHBORS), **self.tpdv)
@@ -138,15 +145,21 @@ class R_Actor(nn.Module):
 
                 actor_features = scores_shifted
 
+                # Shift the load drop scores to the correct position
+                ld_scores_shifted = torch.zeros((actor_features.shape[0], 2), **self.tpdv)
+                for i in range(actor_features.shape[0]):
+                    ld = check(np.array(graphs.agent_idx[i])).to(**self.tpdv).int()
+                    ld_scores_shifted[i, :] = load_drop_scores[i, ld, :]
+
             elif hasattr(graphs, "agent_idx"):
                 agent_idx = torch.from_numpy(np.array(graphs.agent_idx)).reshape(-1, 1).to(self.device)
                 actor_features = self.base.gatherNodeFeats(actor_features, agent_idx)
             
             # send the non-graph features through a different MLP
-            load_drop_scores = self.load_drop_scorer(obs_nongraph) # TODO: try changing this to use the graph embeddings instead of other MLP
+            # load_drop_scores = self.load_drop_scorer(obs_nongraph) # TODO: try changing this to use the graph embeddings instead of other MLP
 
-            # Concatenate the graph and non-graph features.
-            actor_features = torch.cat([actor_features, load_drop_scores], dim=-1)
+            # Concatenate the neighbor and load/drop features.
+            actor_features = torch.cat([actor_features, ld_scores_shifted], dim=-1)
 
             if self._use_gnn_mlp:
                 actor_features = self.mlp0(actor_features)
@@ -204,10 +217,16 @@ class R_Actor(nn.Module):
                     actor_features = F.pad(actor_features, (0, 0, 0, self.MAX_NODES - actor_features.shape[1]), mode='constant', value=0.0)
 
                 neighbors_mask = check(np.array(graphs.neighbors_mask)).to(**self.tpdv).bool()
-                # Extend the mask for the full feature size.
+                agent_mask = check(np.array(graphs.agent_mask)).to(**self.tpdv).bool()
+
+                # Extend the masks for the full feature size.
                 neighbors_mask = neighbors_mask.unsqueeze(2).repeat(1, 1, actor_features.shape[-1])
                 actor_features_masked = torch.where(neighbors_mask, actor_features, 0.0)
                 scores = self.neighbor_scorer(actor_features_masked)
+                
+                agent_mask = agent_mask.unsqueeze(2).repeat(1, 1, actor_features.shape[-1])
+                load_drop_masked = torch.where(agent_mask, actor_features, 0.0)
+                load_drop_scores = self.load_drop_scorer(load_drop_masked)
                 
                 # Shift the scores to the correct position.
                 scores_shifted = torch.zeros((actor_features.shape[0], self.MAX_NEIGHBORS), **self.tpdv)
@@ -217,15 +236,21 @@ class R_Actor(nn.Module):
 
                 actor_features = scores_shifted
 
+                # Shift the load drop scores to the correct position
+                ld_scores_shifted = torch.zeros((actor_features.shape[0], 2), **self.tpdv)
+                for i in range(actor_features.shape[0]):
+                    ld = check(np.array(graphs.agent_idx[i])).to(**self.tpdv).int()
+                    ld_scores_shifted[i, :] = load_drop_scores[i, ld, :]
+
             elif hasattr(graphs, "agent_idx"):
                 agent_idx = torch.from_numpy(np.array(graphs.agent_idx)).reshape(-1, 1).to(self.device)
                 actor_features = self.base.gatherNodeFeats(actor_features, agent_idx)
 
             # send the non-graph features through a different MLP
-            load_drop_scores = self.load_drop_scorer(obs_nongraph)
+            # load_drop_scores = self.load_drop_scorer(obs_nongraph)
 
-            # Concatenate the graph and non-graph features.
-            actor_features = torch.cat([actor_features, load_drop_scores], dim=-1)
+            # Concatenate the neighbor and load/drop features.
+            actor_features = torch.cat([actor_features, ld_scores_shifted], dim=-1)
 
             if self._use_gnn_mlp:
                 actor_features = self.mlp0(actor_features)
