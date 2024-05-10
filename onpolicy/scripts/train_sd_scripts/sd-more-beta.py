@@ -6,7 +6,7 @@ os.environ["WANDB__SERVICE_WAIT"] = "300"
 parser = get_config()
 all_args = parse_args([], parser)
 
-all_args.experiment_name = "search-and-deliver-beta-gnn-with-nongraph"
+all_args.experiment_name = "search-and-deliver-zero-alpha-gnn-with-nongraph"
 all_args.env_name = "search-deliver"
 all_args.user_name = "ideas-mas"
 
@@ -19,7 +19,7 @@ all_args.observation_radius = np.inf
 all_args.observation_bitmap_size = 40
 all_args.communication_model = "bernoulli"
 all_args.communication_probability = 1.0
-all_args.alpha = 1.0
+all_args.alpha = 0.0
 all_args.beta = 10.0
 
 
