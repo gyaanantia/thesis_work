@@ -232,30 +232,30 @@ class parallel_env(ParallelEnv):
             }) # type: ignore
         
 
-        # if observe_method in ["pyg"]:
-            # state_space["current_node_deficit"] = spaces.Box(
-            #     low = -1,
-            #     high = np.inf,
-            #     dtype=np.int32
-            # )
+        if observe_method in ["pyg"]:
+            state_space["current_node_deficit"] = spaces.Box(
+                low = -1,
+                high = np.inf,
+                dtype=np.int32
+            )
 
-            # state_space["current_node_surplus"] = spaces.Box(
-            #     low = -1,
-            #     high = np.inf,
-            #     dtype=np.int32
-            # )
+            state_space["current_node_surplus"] = spaces.Box(
+                low = -1,
+                high = np.inf,
+                dtype=np.int32
+            )
 
-            # state_space["agent_max_capacity"] = spaces.Box(
-            #     low = 0,
-            #     high = np.inf,
-            #     dtype=np.int32
-            # )
+            state_space["agent_max_capacity"] = spaces.Box(
+                low = 0,
+                high = np.inf,
+                dtype=np.int32
+            )
 
-            # state_space["agent_payloads"] = spaces.Box(
-            #     low = 0,
-            #     high = np.inf,
-            #     dtype=np.int32
-            # )
+            state_space["agent_payloads"] = spaces.Box(
+                low = 0,
+                high = np.inf,
+                dtype=np.int32
+            )
 
             # for a in self.possible_agents:
             #     state_space[f"agent_{a.id}_id"] = spaces.Box(
@@ -516,16 +516,16 @@ class parallel_env(ParallelEnv):
                 adjacency[edge[1], edge[0]] = weight
             obs["adjacency"] = adjacency
         
-        # if observe_method in ["pyg"]:
-        #     if agent.edge == None:
-        #         obs["current_node_deficit"] = agent.stateBelief[agent.lastNode][0]
-        #         obs["current_node_surplus"] = agent.stateBelief[agent.lastNode][1]
-        #     else:
-        #         obs["current_node_deficit"] = -1
-        #         obs["current_node_surplus"] = -1
+        if observe_method in ["pyg"]:
+            if agent.edge == None:
+                obs["current_node_deficit"] = agent.stateBelief[agent.lastNode][0]
+                obs["current_node_surplus"] = agent.stateBelief[agent.lastNode][1]
+            else:
+                obs["current_node_deficit"] = -1
+                obs["current_node_surplus"] = -1
 
-        #     obs["agent_max_capacity"] = agent.max_capacity
-        #     obs["agent_payloads"] = agent.payloads
+            obs["agent_max_capacity"] = agent.max_capacity
+            obs["agent_payloads"] = agent.payloads
 
         # Add agent graph position vector.
         if observe_method in ["adjacency"]:
