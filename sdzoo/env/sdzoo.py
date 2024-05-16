@@ -365,7 +365,8 @@ class parallel_env(ParallelEnv):
         observation = {agent: self.observe(agent) for agent in self.agents}
         info = {
             agent: {
-                "ready": True
+                "ready": True,
+                "available_actions": self.available_actions[agent]
             } for agent in self.agents
         }
 
@@ -819,7 +820,7 @@ class parallel_env(ParallelEnv):
                             break  
                         
                     # Add a small penalty for each step taken.
-                    # reward_dict[agent] -= 0.05 
+                    reward_dict[agent] -= 0.05 
 
         # Perform observations.
         for agent in self.possible_agents:
@@ -868,6 +869,10 @@ class parallel_env(ParallelEnv):
 
         # Set available actions.
         self.available_actions = {agent: self._getAvailableActions(agent) for agent in self.possible_agents}
+        
+        # Add available actions to info dict
+        for agent in self.possible_agents:
+            info_dict[agent]["available_actions"] = self.available_actions[agent]
 
         return obs_dict, reward_dict, done_dict, truncated_dict, info_dict
 

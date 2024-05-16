@@ -1,6 +1,7 @@
 import random
 
 from sdzoo.env.sdzoo import parallel_env
+from pettingzoo.utils.conversions import parallel_to_aec
 from sdzoo.env.sd_graph import SDGraph
 from sdzoo.env.communication_model import CommunicationModel
 from gymnasium.spaces.utils import flatten, flatten_space
@@ -85,17 +86,26 @@ class SDEnv(object):
         else:
             self.share_observation_space = [self.env.state_space for a in self.env.possible_agents]
 
+        self.env = parallel_to_aec(self.env)
+
 
     def reset(self):
         self.ppoSteps = 0
         self.prevAction = {a: None for a in self.env.possible_agents}
         self.deltaSteps = {a: 0 for a in self.env.possible_agents}
-        obs, _  = self.env.reset()
+        self.env.reset()
+        obs = {agent: self.env.observe(agent) for agent in self.env.agents}
+
+        state = {}
+        for agent in self.env.possible_agents:
+            state[agent] = self.env.state()
+
+        available_actions = {agent: self.env.env.infos[agent]["available_actions"] for agent in self.env.possible_agents}
 
         combined_obs = {
             "obs": self._obs_wrapper(obs),
-            "share_obs": self._share_obs_wrapper(self.env.state_all()),
-            "available_actions": self._available_actions_wrapper(self.env.available_actions)
+            "share_obs": self._share_obs_wrapper(state),
+            "available_actions": self._available_actions_wrapper(available_actions)
         }
 
         return combined_obs
@@ -134,8 +144,9 @@ class SDEnv(object):
             # We want to determine if this is the last step when using syncronized step skipping.
             lastStep = last_step or (self.args.skip_steps_sync and self.ppoSteps >= self.args.episode_length - 1)
             
-            # Take a step.
-            obs, reward, done, trunc, info = self.env.step(actionPz, lastStep=lastStep)
+            # Take all steps.
+            for _ in range(len(self.env.agents)):
+                self.env.step(actionPz)
 
             # Convert the done dict to a list.
             done = [done[a] for a in self.env.possible_agents]
