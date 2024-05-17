@@ -66,7 +66,7 @@ all_args.hidden_size = 512
 all_args.n_rollout_threads = 1
 all_args.save_interval = 1000
 all_args.cuda = True
-all_args.cuda_idx = 3
+all_args.cuda_idx = 2
 
 all_args.use_wandb = True
 
