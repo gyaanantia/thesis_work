@@ -42,7 +42,7 @@ all_args.num_env_steps = 1e5 * 5 #total number of steps
 all_args.episode_length = 200 #number of steps in a training episode
 all_args.max_cycles = all_args.episode_length #number of steps in an environment episode
 
-all_args.algorithm_name = "mappo"
+all_args.algorithm_name = "rmappo"
 all_args.use_gnn_policy = True
 all_args.use_gnn_mlp_policy = True
 all_args.gnn_layer_N = 2
