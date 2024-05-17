@@ -175,8 +175,23 @@ class SDGraph():
             for node in self.graph.nodes:
                 self.graph.nodes[node]["id"] = availableIds.pop()
 
+        # Reset payloads
         for node in self.graph.nodes:
-            self.graph.nodes[node]["payloads"] = 0 if not self.graph.nodes[node]["depot"] else self.totalPayloads
+            self.graph.nodes[node]["payloads"] = 0
+
+        depot_nodes = [node for node in self.graph.nodes if self.graph.nodes[node]["depot"]]
+        payloads_left = self.totalPayloads
+        while payloads_left > 0:
+            for node in depot_nodes:
+                if payloads_left == 0:
+                    break
+                payloads = float("inf")
+                while payloads > payloads_left:
+                    payloads = random.randint(0, 5) # add maximum 5 payloads at a time to a given depot node
+                self.graph.nodes[node]["payloads"] += payloads
+                payloads_left -= payloads
+
+        for node in self.graph.nodes:
             self.setNodeDeficit(node)
             self.setNodeSurplus(node)
 
