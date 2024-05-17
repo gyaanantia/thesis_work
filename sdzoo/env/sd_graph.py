@@ -43,8 +43,9 @@ class SDGraph():
                 posx = int(file.readline()) * self.resolution + self.offsetX
                 posy = int(file.readline()) * self.resolution + self.offsetY
                 dep = bool(int(file.readline()))
-                peeps = int(file.readline())
-                load = 0 if not dep else self.totalPayloads
+                p = int(file.readline())
+                peeps = p if not dep else 0
+                load = 0 if not dep else p
 
                 self.graph.add_node(i,
                     pos = (posx, posy),
@@ -102,19 +103,16 @@ class SDGraph():
         self.offsetY = 0.0
         self.totalPayloads = payloads
 
-        depot_node = random.randint(0, len(self.graph.nodes) - 1)
-        node_count = 0
+        num_depots = len(self.graph.nodes) // 3
+
+        depot_nodes = set(np.random.randint(0, len(self.graph.nodes) - 1, num_depots))
         for node in self.graph.nodes:
-            depot = False
-            if node_count == depot_node:
-                depot = True
             self.graph.nodes[node]["nodeType"] = NODE_TYPE.OBSERVABLE_NODE
             self.graph.nodes[node]["id"] = node
-            self.graph.nodes[node]["depot"] = depot
+            self.graph.nodes[node]["depot"] = node in depot_nodes
             self.graph.nodes[node]["people"] = 0
-            self.graph.nodes[node]["payloads"] = 0 if not depot else self.totalPayloads
+            self.graph.nodes[node]["payloads"] = 0
             
-            node_count += 1
 
         # add people to nodes
         people_left = self.totalPayloads
@@ -130,6 +128,21 @@ class SDGraph():
                     people = random.randint(0, 3) # add maximum 3 people at a time to a given node
                 self.graph.nodes[node]["people"] += people
                 people_left -= people
+
+        # add payloads to depot nodes
+        payloads_left = self.totalPayloads
+        while payloads_left > 0:
+            for node in depot_nodes:
+                if payloads_left == 0:
+                    break
+                payloads = float("inf")
+                while payloads > payloads_left:
+                    payloads = random.randint(0, 5) # add maximum 5 payloads at a time to a given depot node
+                self.graph.nodes[node]["payloads"] += payloads
+                payloads_left -= payloads
+                
+
+
 
         # calculate deficit and surplus for each node
         for node in self.graph.nodes:
@@ -364,7 +377,10 @@ class SDGraph():
                 file.write(f"{int((self.graph.nodes[i]['pos'][0] - self.offsetX) / self.resolution)}\n")
                 file.write(f"{int((self.graph.nodes[i]['pos'][1] - self.offsetY) / self.resolution)}\n")
                 file.write(f"{int(self.graph.nodes[i]['depot'])}\n")
-                file.write(f"{int(self.graph.nodes[i]['people'])}\n")
+                if self.graph.nodes[i]['depot']:
+                    file.write(f"{int(self.graph.nodes[i]['payloads'])}\n")
+                else:
+                    file.write(f"{int(self.graph.nodes[i]['people'])}\n")
                 
                 # Write edges.
                 numEdges = self.graph.degree[i]
