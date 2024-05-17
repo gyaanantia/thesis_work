@@ -140,7 +140,11 @@ class R_Actor(nn.Module):
                 # Shift the scores to the correct position.
                 scores_shifted = torch.zeros((actor_features.shape[0], self.MAX_NEIGHBORS), **self.tpdv)
                 for i in range(actor_features.shape[0]):
-                    nbrs = check(np.array(graphs.neighbors[i])).to(**self.tpdv).int()
+                    if graphs.agent_edge[i][0] is not None:
+                        nbrs = check(np.array(graphs.neighbors[i])).to(**self.tpdv).int()
+                    else:
+                        # If the agent is on a node, the first neighbor is the current node, so ignore its score.
+                        nbrs = check(np.array(graphs.neighbors[i][1:])).to(**self.tpdv).int()
                     scores_shifted[i, :nbrs.shape[0]] = scores[i, nbrs, 0]
 
                 actor_features = scores_shifted
@@ -231,7 +235,11 @@ class R_Actor(nn.Module):
                 # Shift the scores to the correct position.
                 scores_shifted = torch.zeros((actor_features.shape[0], self.MAX_NEIGHBORS), **self.tpdv)
                 for i in range(actor_features.shape[0]):
-                    nbrs = check(np.array(graphs.neighbors[i])).to(**self.tpdv).int()
+                    if graphs.agent_edge[i][0] is not None:
+                        nbrs = check(np.array(graphs.neighbors[i])).to(**self.tpdv).int()
+                    else:
+                        # If the agent is on a node, the first neighbor is the current node, so ignore its score.
+                        nbrs = check(np.array(graphs.neighbors[i][1:])).to(**self.tpdv).int()
                     scores_shifted[i, :nbrs.shape[0]] = scores[i, nbrs, 0]
 
                 actor_features = scores_shifted

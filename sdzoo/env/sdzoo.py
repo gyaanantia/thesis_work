@@ -702,6 +702,7 @@ class parallel_env(ParallelEnv):
             nbrMask[neighbors] = True
             data.neighbors = neighbors
             data.neighbors_mask = nbrMask
+            data.agent_edge = [agent.edge]
 
             obs["graph"] = data
 
