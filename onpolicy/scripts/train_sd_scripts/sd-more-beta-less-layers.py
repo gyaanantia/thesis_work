@@ -7,7 +7,7 @@ os.environ["WANDB__SERVICE_WAIT"] = "300"
 parser = get_config()
 all_args = parse_args([], parser)
 
-all_args.experiment_name = get_experiment_name("beta", "no-skip")
+all_args.experiment_name = get_experiment_name("beta", "less-layers")
 all_args.env_name = "search-deliver"
 all_args.user_name = "ideas-mas"
 
@@ -45,9 +45,9 @@ all_args.max_cycles = all_args.episode_length #number of steps in an environment
 all_args.algorithm_name = "mappo"
 all_args.use_gnn_policy = True
 all_args.use_gnn_mlp_policy = True
-all_args.gnn_layer_N = 2
+all_args.gnn_layer_N = 6
 all_args.gnn_hidden_size = 128
-all_args.gnn_skip_connections = False
+all_args.gnn_skip_connections = True
 all_args.use_recurrent_policy = True
 all_args.use_naive_recurrent_policy = False
 all_args.use_centralized_V = True
@@ -66,7 +66,7 @@ all_args.hidden_size = 512
 all_args.n_rollout_threads = 1
 all_args.save_interval = 1000
 all_args.cuda = True
-all_args.cuda_idx = 1
+all_args.cuda_idx = 6
 
 all_args.use_wandb = True
 

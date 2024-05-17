@@ -1,4 +1,5 @@
 from onpolicy.scripts.train.train_sd import get_config, parse_args, main
+from onpolicy.scripts.train_sd_scripts.experiment_name import get_experiment_name
 import numpy as np
 import os
 os.environ["WANDB__SERVICE_WAIT"] = "300"
@@ -6,7 +7,7 @@ os.environ["WANDB__SERVICE_WAIT"] = "300"
 parser = get_config()
 all_args = parse_args([], parser)
 
-all_args.experiment_name = "search-and-deliver-single-gnn-with-nongraph"
+all_args.experiment_name = get_experiment_name("alpha", "single")
 all_args.env_name = "search-deliver"
 all_args.user_name = "ideas-mas"
 
@@ -34,11 +35,11 @@ all_args.reward_method_terminal = "average"
 
 # all_args.graph_random = True
 # all_args.graph_random_nodes = 9
-all_args.graph_name = "cumberland"
+all_args.graph_name = "9nodes"
 all_args.graph_file = f"../../../sdzoo/env/{all_args.graph_name}.graph"
 # all_args.num_env_steps = 10000 #total number of steps
-all_args.num_env_steps = 1e5 * 6 #total number of steps
-all_args.episode_length = 500 #number of steps in a training episode
+all_args.num_env_steps = 1e5 * 5 #total number of steps
+all_args.episode_length = 200 #number of steps in a training episode
 all_args.max_cycles = all_args.episode_length #number of steps in an environment episode
 
 all_args.algorithm_name = "mappo"
