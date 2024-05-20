@@ -91,6 +91,34 @@ class GNNBase(nn.Module):
         return out
 
 
+    def graphAggr(self, x: torch.Tensor, aggr: str = "mean"):
+            """
+            This method is borrowed from InforMARL: https://github.com/nsidn98/InforMARL/blob/main/onpolicy/algorithms/utils/gnn.py#L381
+
+            Aggregate the graph node features by performing global pool
+
+
+            Args:
+                x (Tensor): Tensor of shape [batch_size, num_nodes, num_feats]
+                aggr (str): Aggregation method for performing the global pool
+
+            Raises:
+                ValueError: If `aggr` is not in ['mean', 'max']
+
+            Returns:
+                Tensor: The global aggregated tensor of shape [batch_size, num_feats]
+            """
+            if aggr == "mean":
+                return x.mean(dim=1)
+            elif aggr == "max":
+                max_feats, idx = x.max(dim=1)
+                return max_feats
+            elif aggr == "add":
+                return x.sum(dim=1)
+            else:
+                raise ValueError(f"`aggr` should be one of 'mean', 'max', 'add'")
+
+
 class GraphSAGEWithEdges(GraphSAGE):
     r"""All arguments the same as `torch_geometric.nn.GraphSAGE` except for the
     addition of `edge_attr` in the forward method.
