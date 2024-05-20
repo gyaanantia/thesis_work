@@ -257,6 +257,12 @@ class parallel_env(ParallelEnv):
                 dtype=np.int32
             )
 
+            state_space["agent_id"] = spaces.Box(
+                low = 0,
+                high = np.inf,
+                dtype=np.int32
+            )
+
             # for a in self.possible_agents:
             #     state_space[f"agent_{a.id}_id"] = spaces.Box(
             #         low = -1,
@@ -526,6 +532,7 @@ class parallel_env(ParallelEnv):
 
             obs["agent_max_capacity"] = agent.max_capacity
             obs["agent_payloads"] = agent.payloads
+            obs["agent_id"] = agent.id
 
         # Add agent graph position vector.
         if observe_method in ["adjacency"]:
