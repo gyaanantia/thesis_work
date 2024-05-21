@@ -264,7 +264,8 @@ class R_Actor(nn.Module):
             # load_drop_scores = self.load_drop_scorer(obs_nongraph)
 
             # Concatenate the neighbor, load/drop features, nongraph_obs, graph aggregation.
-            actor_features = torch.cat([actor_features, ld_scores_shifted, obs_nongraph, aggr], dim=-1)
+            # actor_features = torch.cat([actor_features, ld_scores_shifted, obs_nongraph, aggr], dim=-1)
+            actor_features = torch.cat([actor_features, ld_scores_shifted, obs_nongraph], dim=-1)
 
             if self._use_gnn_mlp:
                 actor_features = self.mlp0(actor_features)
