@@ -95,6 +95,7 @@ class parallel_env(ParallelEnv):
                  load_reward = 5,
                  step_reward = 10,
                  state_reward = 20,
+                 step_penalty = 0.1,
                  agent_max_capacity = 1,
                  *args,
                  **kwargs):
@@ -135,6 +136,7 @@ class parallel_env(ParallelEnv):
         self.load_reward = load_reward
         self.step_reward = step_reward
         self.state_reward = state_reward
+        self.step_penalty = step_penalty
 
         self.reward_interval = reward_interval
 
@@ -826,8 +828,8 @@ class parallel_env(ParallelEnv):
                         if stepSize <= 0.0:
                             break  
                         
-                    # Add a small penalty for each step taken.
-                    reward_dict[agent] -= 0.05 
+            # Add a small penalty for each step taken.
+            reward_dict[agent] -= self.step_penalty 
 
         # Perform observations.
         for agent in self.possible_agents:

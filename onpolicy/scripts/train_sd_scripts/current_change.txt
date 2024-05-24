@@ -1,1 +1,1 @@
-increase-hidden
+global-penalty

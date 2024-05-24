@@ -50,6 +50,7 @@ class SDEnv(object):
             load_reward = args.load_reward,
             step_reward = args.step_reward,
             state_reward = args.state_reward,
+            step_penalty = args.step_penalty,
             agent_max_capacity = args.agent_max_capacity
         )
         

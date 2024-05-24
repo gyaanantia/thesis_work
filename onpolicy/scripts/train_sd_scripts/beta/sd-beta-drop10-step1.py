@@ -7,7 +7,7 @@ os.environ["WANDB__SERVICE_WAIT"] = "300"
 parser = get_config()
 all_args = parse_args([], parser)
 
-all_args.experiment_name = get_experiment_name("beta")
+all_args.experiment_name = get_experiment_name("beta", "drop10-step1")
 all_args.env_name = "search-deliver"
 all_args.user_name = "ideas-mas"
 
@@ -28,6 +28,7 @@ all_args.drop_reward = 10.0
 all_args.load_reward = 1.0
 all_args.step_reward = 1.0
 all_args.state_reward = 1.0
+all_args.step_penalty = 0.1
 all_args.agent_max_capacity = 1
 # all_args.reward_method_terminal = "averageAverage"
 all_args.reward_method_terminal = "average"
@@ -36,7 +37,7 @@ all_args.reward_method_terminal = "average"
 # all_args.graph_random = True
 # all_args.graph_random_nodes = 9
 all_args.graph_name = "9nodes"
-all_args.graph_file = f"../../../sdzoo/env/{all_args.graph_name}.graph"
+all_args.graph_file = f"../../../../sdzoo/env/{all_args.graph_name}.graph"
 # all_args.num_env_steps = 10000 #total number of steps
 all_args.num_env_steps = 1e5 * 5 #total number of steps
 all_args.episode_length = 200 #number of steps in a training episode
@@ -66,7 +67,7 @@ all_args.hidden_size = 512
 all_args.n_rollout_threads = 1
 all_args.save_interval = 1000
 all_args.cuda = True
-all_args.cuda_idx = 7
+all_args.cuda_idx = 3
 
 all_args.use_wandb = True
 
