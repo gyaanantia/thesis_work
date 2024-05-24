@@ -43,6 +43,7 @@ class PatrollingRunner(Runner):
 
             # Set the delta steps to 1.
             delta_steps = np.ones((self.n_rollout_threads, self.num_agents, 1), dtype=np.int32)
+            last_steps = [-1]
             for step in range(self.episode_length): # TODO: this doesn't truncate?
                 # Sample actions
                 # Sample actions, collect values and probabilities.
@@ -50,6 +51,10 @@ class PatrollingRunner(Runner):
                     
                 # Obser reward and next obs
                 combined_obs, rewards, dones, infos = self.envs.step(actions_env)
+                if np.all(dones) and step != self.episode_length - 1:
+                    if -1 in last_steps:
+                        last_steps.remove(-1)
+                    last_steps.append(step)
 
                 # Split the combined observations into obs and share_obs, then combine across environments.
                 obs, share_obs, available_actions = self._process_combined_obs(combined_obs)
@@ -63,8 +68,8 @@ class PatrollingRunner(Runner):
                 self.insert(data)
 
             # compute return and update network
-            self.compute()
-            train_infos = self.train()
+            self.compute(min(last_steps))
+            train_infos = self.train(min(last_steps))
             
             # post process
             total_num_steps = (episode + 1) * self.episode_length * self.n_rollout_threads
