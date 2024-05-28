@@ -7,7 +7,7 @@ os.environ["WANDB__SERVICE_WAIT"] = "300"
 parser = get_config()
 all_args = parse_args([], parser)
 
-all_args.experiment_name = get_experiment_name("beta", "drop10-step05-hidden-80")
+all_args.experiment_name = get_experiment_name("beta", "drop10-step05-hidden-100")
 all_args.env_name = "search-deliver"
 all_args.user_name = "ideas-mas"
 
@@ -47,7 +47,7 @@ all_args.algorithm_name = "rmappo"
 all_args.use_gnn_policy = True
 all_args.use_gnn_mlp_policy = True
 all_args.gnn_layer_N = 8
-all_args.gnn_hidden_size = 80
+all_args.gnn_hidden_size = 100
 all_args.gnn_skip_connections = True
 all_args.use_recurrent_policy = True
 all_args.use_naive_recurrent_policy = False
