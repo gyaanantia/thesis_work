@@ -127,20 +127,36 @@ class Runner(object):
     def save(self):
         """Save policy's actor and critic networks."""
         policy_actor = self.trainer.policy.actor
-        torch.save(policy_actor.state_dict(), str(self.save_dir) + "/actor.pt")
+        actor_data = {
+            'model': policy_actor,
+            'optimizer_state_dict': self.trainer.policy.actor_optimizer.state_dict(),
+        }
+        torch.save(actor_data, str(self.save_dir) + "/actor.pt")
         policy_critic = self.trainer.policy.critic
-        torch.save(policy_critic.state_dict(), str(self.save_dir) + "/critic.pt")
+        critic_data = {
+            'model': policy_critic,
+            'optimizer_state_dict': self.trainer.policy.critic_optimizer.state_dict(),
+        }
+        torch.save(critic_data, str(self.save_dir) + "/critic.pt")
         if self.trainer._use_valuenorm:
             policy_vnorm = self.trainer.value_normalizer
             torch.save(policy_vnorm.state_dict(), str(self.save_dir) + "/vnorm.pt")
 
     def restore(self):
         """Restore policy's networks from a saved model."""
-        policy_actor_state_dict = torch.load(str(self.model_dir) + '/actor.pt')
-        self.policy.actor.load_state_dict(policy_actor_state_dict)
+        actor_data = torch.load(str(self.model_dir) + '/actor.pt')
+        if "model" not in actor_data:
+            self.policy.actor.load_state_dict(actor_data)
+        else:
+            self.policy.actor = actor_data['model']
+            self.policy.actor_optimizer.load_state_dict(actor_data['optimizer_state_dict'])
         if not self.all_args.use_render:
-            policy_critic_state_dict = torch.load(str(self.model_dir) + '/critic.pt')
-            self.policy.critic.load_state_dict(policy_critic_state_dict)
+            critic_data = torch.load(str(self.model_dir) + '/critic.pt')
+            if "model" not in critic_data:
+                self.policy.critic.load_state_dict(critic_data)
+            else:
+                self.policy.critic = critic_data['model']
+                self.policy.critic_optimizer.load_state_dict(critic_data['optimizer_state_dict'])
             if self.trainer._use_valuenorm:
                 policy_vnorm_state_dict = torch.load(str(self.model_dir) + '/vnorm.pt')
                 self.trainer.value_normalizer.load_state_dict(policy_vnorm_state_dict)
