@@ -828,8 +828,8 @@ class parallel_env(ParallelEnv):
                         if stepSize <= 0.0:
                             break  
                         
-            # Add a small penalty for each step taken.
-            reward_dict[agent] -= self.step_penalty 
+                    # Add a small penalty for each step taken.
+                    reward_dict[agent] -= self.step_penalty 
 
         # Perform observations.
         for agent in self.possible_agents:

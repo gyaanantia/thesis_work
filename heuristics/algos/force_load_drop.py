@@ -5,6 +5,7 @@ import numpy as np
 from IPython.display import clear_output
 import random
 from sdzoo.env.sdzoo import ACTION
+import pandas as pd
 
 from .base import BaseAlgorithm
 
@@ -19,11 +20,13 @@ class ForceLoadDrop(BaseAlgorithm):
         ''' Resets the model '''
         pass
 
-    def evaluate(self, render=False, render_terminal=False, max_cycles=None, max_episodes=1, seed=None):
+    def evaluate(self, algo_num, render=False, render_terminal=False, max_cycles=None, max_episodes=1, seed=None):
         ''' Evaluates the model '''
 
         if max_cycles != None:
             self.env.max_cycles = max_cycles
+            
+        avg_rewards = pd.DataFrame(columns=['steps', f'reward{algo_num}'])
 
         for episode in range(max_episodes):
             obs, info = self.env.reset(seed=seed) 
@@ -38,9 +41,14 @@ class ForceLoadDrop(BaseAlgorithm):
 
             self.prevActions = {a: None for a in self.env.agents}
 
+            episode_rewards = np.zeros((self.env.max_cycles, len(self.env.possible_agents)), dtype=int)
+
             while not any(terms) and not any (truncs):
                 actions = self.generate_actions()
                 obs, rewards, terms, truncs, info = self.env.step(actions)
+
+                for key, val in rewards.items():
+                    episode_rewards[self.env.step_count - 1, self.env.possible_agents.index(key)] = val
 
                 terms = [terms[a] for a in terms]
                 truncs = [truncs[a] for a in truncs]
@@ -51,9 +59,13 @@ class ForceLoadDrop(BaseAlgorithm):
 
                 self.prevActions = actions
             
+            avg_rewards.loc[episode] = [self.env.step_count * (episode + 1), np.mean(episode_rewards) * self.env.max_cycles]
+
             if render_terminal:
                 clear_output(wait=True)
                 self.env.render()
+
+        return avg_rewards
 
     def generate_actions(self):
         ''' Generates actions for the agents '''
