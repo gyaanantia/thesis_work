@@ -65,7 +65,8 @@ class ImprovedRandom(BaseAlgorithm):
                 clear_output(wait=True)
                 self.env.render()
             
-            print("Improved Random Episode:", episode)
+            if episode % 10 == 0:
+                print("Improved Random Episode:", episode)
         
         return avg_rewards
 

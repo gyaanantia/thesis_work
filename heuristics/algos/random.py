@@ -66,7 +66,8 @@ class RandomChoice(BaseAlgorithm):
                 clear_output(wait=True)
                 self.env.render()
 
-            print("Random Episode:", episode)
+            if episode % 10 == 0:
+                print("Random Episode:", episode)
 
         return avg_rewards
 

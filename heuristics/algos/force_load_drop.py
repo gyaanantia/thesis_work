@@ -65,7 +65,8 @@ class ForceLoadDrop(BaseAlgorithm):
                 clear_output(wait=True)
                 self.env.render()
 
-            print("Force Load Drop Episode:", episode)
+            if episode % 10 == 0:
+                print("Force Load Drop Episode:", episode)
 
         return avg_rewards
 
