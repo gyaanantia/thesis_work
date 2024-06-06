@@ -66,6 +66,8 @@ class RandomChoice(BaseAlgorithm):
                 clear_output(wait=True)
                 self.env.render()
 
+            print("Random Episode:", episode)
+
         return avg_rewards
 
     def generate_actions(self):

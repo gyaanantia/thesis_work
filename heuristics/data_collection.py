@@ -39,3 +39,5 @@ rewards3 = algo3.evaluate(3, render=RENDER_ALL, render_terminal=RENDER_TERMINAL,
 
 rewards = pd.concat([rewards1, rewards2['reward2'], rewards3['reward3']], axis=1)
 rewards.to_csv("heuristic_rewards.csv")
+
+print("DONE")
