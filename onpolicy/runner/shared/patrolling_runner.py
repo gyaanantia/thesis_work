@@ -320,6 +320,8 @@ class PatrollingRunner(Runner):
                 
                 # time.sleep(1.0)
 
+            render_env.envs[0].env.render()
+
             # save gif
             if self.all_args.save_gifs:
                 imageio.mimsave(
