@@ -1,8 +1,8 @@
 # SDZoo
 
-<!-- This repository contains the policy/training code for the paper, "Graph Neural Network-based Multi-agent Reinforcement Learning for Resilient Distributed Coordination of Multi-Robot Systems", by Anthony Goeckner, Yueyuan Sui, Nicolas Martinet, Xinliang Li, and Qi Zhu of Northwestern University in Evanston, Illinois. -->
+<!-- This repository is based on the paper, "Graph Neural Network-based Multi-agent Reinforcement Learning for Resilient Distributed Coordination of Multi-Robot Systems", by Anthony Goeckner, Yueyuan Sui, Nicolas Martinet, Xinliang Li, and Qi Zhu of Northwestern University in Evanston, Illinois. -->
 
-Gyaan Thesis work forked from [patrolling zoo](https://github.com/NU-IDEAS-Lab/patrolling_zoo)
+Gyaan's Thesis work forked from [patrolling zoo](https://github.com/NU-IDEAS-Lab/patrolling_zoo)
 
 ## Package Description
 Packages are as follows:
@@ -24,9 +24,7 @@ Packages are as follows:
     conda activate sdzoo
     ```
 
- 3) Install PyTorch to the new `sdzoo` conda environment using the [steps outlined on the PyTorch website](https://pytorch.org/get-started/locally/).
-
- 4) Install the `onpolicy` and `sdzoo` packages:
+ 3) Install the `onpolicy` and `sdzoo` packages:
     ```
     pip install -e .
     ```
