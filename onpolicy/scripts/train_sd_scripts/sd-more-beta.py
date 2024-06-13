@@ -24,7 +24,7 @@ all_args.alpha = 1.0
 all_args.beta = 10.0
 
 
-all_args.drop_reward = 1.0
+all_args.drop_reward = 10.0
 all_args.load_reward = 1.0
 all_args.step_reward = 1.0
 all_args.state_reward = 1.0

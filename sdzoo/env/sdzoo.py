@@ -95,6 +95,7 @@ class parallel_env(ParallelEnv):
                  load_reward = 5,
                  step_reward = 10,
                  state_reward = 20,
+                 step_penalty = 0.1,
                  agent_max_capacity = 1,
                  *args,
                  **kwargs):
@@ -135,6 +136,7 @@ class parallel_env(ParallelEnv):
         self.load_reward = load_reward
         self.step_reward = step_reward
         self.state_reward = state_reward
+        self.step_penalty = step_penalty
 
         self.reward_interval = reward_interval
 
@@ -827,7 +829,7 @@ class parallel_env(ParallelEnv):
                             break  
                         
                     # Add a small penalty for each step taken.
-                    reward_dict[agent] -= 0.05 
+                    reward_dict[agent] -= self.step_penalty 
 
         # Perform observations.
         for agent in self.possible_agents:
@@ -853,11 +855,11 @@ class parallel_env(ParallelEnv):
                     reward_dict[agent] += self._minMaxNormalize(-self.sdg.getTotalDeficit(), minimum=-self.sdg.getTotalPayloads(), maximum=0.0) * self.state_reward * self.beta 
                     # reward_dict[agent] += (1 / (self.step_count + 1)) * self.step_reward
                     # reward_dict[agent] += self._minMaxNormalize(1 / (self.step_count + 1e-8), minimum=(1 / (self.max_cycles + 1e-8)), maximum=(1 / self.sdg.graph.number_of_nodes())) * self.step_reward * self.beta
-                    print(f"Total Deficit: {self.sdg.getTotalDeficit()}")
-                    print(f"Total Surplus: {self.sdg.getTotalSurplus()}")
-                    print(f"AGENT ID: {agent.id}")
-                    print(f"Agent {agent.id} Payloads: {agent.payloads}")
-                    print(f"Agent {agent.id} Max Capacity: {agent.max_capacity}")
+                    # print(f"Total Deficit: {self.sdg.getTotalDeficit()}")
+                    # print(f"Total Surplus: {self.sdg.getTotalSurplus()}")
+                    # print(f"AGENT ID: {agent.id}")
+                    # print(f"Agent {agent.id} Payloads: {agent.payloads}")
+                    # print(f"Agent {agent.id} Max Capacity: {agent.max_capacity}")
                     
 
                 elif self.reward_method_terminal != "none":
