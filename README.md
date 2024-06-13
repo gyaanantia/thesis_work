@@ -14,13 +14,13 @@ Packages are as follows:
 
  1) Clone the sdzoo repository:
     ```bash
-    git clone --recurse git@github.com:NU-IDEAS-Lab/sdzoo.git
+    git clone --recurse git@github.com:gyaanantia/sdzoo.git
     ```
 
  2) Create a Conda environment with required packages:
     ```bash
     cd ./sdzoo
-    conda env create -n sdzoo -f ./environment.yml
+    conda env create -n sdzoo -f ./requirements.yml
     conda activate sdzoo
     ```
 
